@@ -3,18 +3,21 @@ Welcome to my professional portfolio, where I showcase my journey as a passionat
 
 ## Screenshots
 HOW IT WORKS ON LAPTOP/PC LANDSCAPE:
-![App Screenshot](src/screenshots/your-screenshot-03.png)
-![App Screenshot](src/screenshots/your-screenshot-01.png)
-![App Screenshot](src/screenshots/your-screenshot-02.png)
+![App Screenshot](file:///D:/BALAGANESH/Portfolio/Balaganesh%20Portfolio/Bala_Portfolio/src/screenshots/screenshot_03.png)
+![App Screenshot](file:///D:/BALAGANESH/Portfolio/Balaganesh%20Portfolio/Bala_Portfolio/src/screenshots/screenshot_01.png)
+![App Screenshot](file:///D:/BALAGANESH/Portfolio/Balaganesh%20Portfolio/Bala_Portfolio/src/screenshots/screenshot_02.png)
 
 HOW IT WORKS ON MOBILE VERTICAL:
-![App Screenshot](src/screenshots/your-screenshot-mobile01.png)
-![App Screenshot](src/screenshots/your-screenshot-mobile02.png)
+![App Screenshot](file:///D:/BALAGANESH/Portfolio/Balaganesh%20Portfolio/Bala_Portfolio/src/screenshots/screenshot_mobile01.png)
+![App Screenshot](file:///D:/BALAGANESH/Portfolio/Balaganesh%20Portfolio/Bala_Portfolio/src/screenshots/screenshot_mobile02.png)
 
 Key Features:
 1.Responsive Design: Optimized for both laptop and mobile devices, ensuring a smooth browsing experience regardless of screen size.
+
 2.Dark & Light Modes: Switch effortlessly between dark and light modes to suit your preference, offering a comfortable viewing experience in any environment.
+
 3.Project Highlights: A curated selection of my most notable projects, complete with descriptions, tech stacks, and live demos.
+
 4.Contact & Social Links: Easy access to my LinkedIn, GitHub, and email for quick connections and collaboration.
 
 ## Introduction
