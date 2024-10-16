@@ -3,13 +3,13 @@ Welcome to my professional portfolio, where I showcase my journey as a passionat
 
 ## Screenshots
 HOW IT WORKS ON LAPTOP/PC LANDSCAPE:
-![App Screenshot](file:///D:/BALAGANESH/Portfolio/Balaganesh%20Portfolio/Bala_Portfolio/src/screenshots/screenshot_03.png)
-![App Screenshot](file:///D:/BALAGANESH/Portfolio/Balaganesh%20Portfolio/Bala_Portfolio/src/screenshots/screenshot_01.png)
-![App Screenshot](file:///D:/BALAGANESH/Portfolio/Balaganesh%20Portfolio/Bala_Portfolio/src/screenshots/screenshot_02.png)
+![App Screenshot](src/screenshots/screenshot_03.png)
+![App Screenshot](src/screenshots/screenshot_01.png)
+![App Screenshot](src/screenshots/screenshot_02.png)
 
 HOW IT WORKS ON MOBILE VERTICAL:
-![App Screenshot](file:///D:/BALAGANESH/Portfolio/Balaganesh%20Portfolio/Bala_Portfolio/src/screenshots/screenshot_mobile01.png)
-![App Screenshot](file:///D:/BALAGANESH/Portfolio/Balaganesh%20Portfolio/Bala_Portfolio/src/screenshots/screenshot_mobile02.png)
+![App Screenshot](src/screenshots/screenshot_mobile01.png)
+![App Screenshot](src/screenshots/screenshot_mobile02.png)
 
 Key Features:
 1.Responsive Design: Optimized for both laptop and mobile devices, ensuring a smooth browsing experience regardless of screen size.
