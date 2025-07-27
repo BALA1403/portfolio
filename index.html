@@ -2,43 +2,34 @@
 <html lang="en">
 
 <head>
-
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="index, follow" />
   <meta name="theme-color" content="#000" />
-  <meta name="description" content="Balaganesh | Portfolio, Visit and know about me & my projects/designs. I value simple content structure, clean design patterns, and thoughtful interactions." />
-  <meta name="keywords"
-    content="Balaganesh,Balaganesh portfolio,Balaganesh Portfolio,Balaganesh,Balaganesh site,BalaganeshSite,Balaganesh me,Balaganesh web,Balaganesh github,Balaganeshsite,Balaganeshuiverse,uiverse,Balaganesh uiverse,Balaganesh frontend developer,frontend developer,Balaganesh jaipur,vinod jaipur" />
-  <meta name="author" content="Balaganesh" />
-  <meta property="og:title" content="Balaganesh  | Portfolio" />
-  <meta property="og:description"
-    content="Hi! My name is Balaganesh. I'm a web developer and digital visual artist. Visit and know about me & my projects/designs. I value simple content structure, clean design patterns, and thoughtful interactions." />
-
+  <meta name="description" content="Balaganesh S B | Portfolio, Oracle-certified Java developer with expertise in full-stack development and Android applications. Visit and know about me & my projects/designs." />
+  <meta name="keywords" content="Balaganesh,Balaganesh S B,Oracle Certified Java Developer,Full Stack Developer,Android Developer,Java Spring Boot,Angular,React,Wipro TalentNext,Computer Science,Tamil Nadu" />
+  <meta name="author" content="Balaganesh S B" />
+  <meta property="og:title" content="Balaganesh S B | Portfolio" />
+  <meta property="og:description" content="Oracle-certified Java developer with B.Tech in Computer Science and Business Systems. Experienced in full-stack development, Android applications, and modern web technologies." />
   <meta property="og:url" content="" />
-  <meta property="og:site_name" content="Balaganesh Portfolio" />
-
-
+  <meta property="og:site_name" content="Balaganesh S B Portfolio" />
   <meta name="twitter:site" content="@Portfolio" />
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Balaganesh | Portfolio" />
-  <meta name="twitter:description"
-    content="Hi! My name is Balaganesh. I'm a web developer and digital visual artist. Visit and know about me & my projects/designs. I value simple content structure, clean design patterns, and thoughtful interactions." />
-  <title>Balaganesh | Portfolio</title>
+  <meta name="twitter:title" content="Balaganesh S B | Portfolio" />
+  <meta name="twitter:description" content="Oracle-certified Java developer with expertise in full-stack development and Android applications." />
+  <title>Balaganesh S B | Portfolio</title>
   <link rel="icon" type="image/x-icon" href="src/png/main-favicon.jpg" />
   <!-- aos cdn -->
 
   <!-- stylesheet -->
   <link rel="stylesheet" href="style.css" />
   <!-- google fonts-->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Passions+Conflict&family=Orbitron&family=Fira+Code&family=Six+Caps" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&family=Winky+Rough:ital,wght@0,300..900;1,300..900&display=swap"
+    rel="stylesheet">
 
-<body class="body">
-  <audio loop="" id="audioPlayer" style="display: none">
-    <source src="src/mp3/preloader.mp3" type="audio/mp3" />
-  </audio>
-  <div id="preloader"></div>
   <noscript>Allow Javascript</noscript>
 
   <header>
@@ -62,13 +53,25 @@
 
           <li class="about" class="navbar-tabs-li" data-aos="fade-down" data-aos-delay="300">
             <a href="#about" aria-label="about menu button">
-              &#60;/AboutMe&#62;
+              &#60;/About Me&#62;
+            </a>
+          </li>
+
+          <li class="experience" class="navbar-tabs-li" data-aos="fade-down" data-aos-delay="400">
+            <a href="#experience" aria-label="experience menu button">
+              &#60;/Experience&#62;
             </a>
           </li>
 
           <li class="skills" class="navbar-tabs-li" data-aos="fade-down" data-aos-delay="500">
             <a href="#skills" aria-label="skills menu button">
               &#60;/Skills&#62;
+            </a>
+          </li>
+
+          <li class="certifications" class="navbar-tabs-li" data-aos="fade-down" data-aos-delay="600">
+            <a href="#certifications" aria-label="certifications menu button">
+              &#60;/Certifications&#62;
             </a>
           </li>
 
@@ -106,14 +109,28 @@
 
         <li id="aboutme-mobile-tab" class="mobile-navbar-tabs-li about" onclick="hidemenubyli()">
           <a href="#about" tabindex="0" aria-label="about menu button">
-            &#60;/AboutMe&#62;
+            &#60;/About Me&#62;
           </a>
         </li>
+
+        <li id="experience-mobile-tab" class="mobile-navbar-tabs-li experience" onclick="hidemenubyli()">
+          <a href="#experience" tabindex="0" aria-label="experience menu button">
+            &#60;/Experience&#62;
+          </a>
+        </li>
+
         <li id="skills-mobile-tab" class="mobile-navbar-tabs-li skills" onclick="hidemenubyli()">
           <a href="#skills" tabindex="0" aria-label="skills menu button">
             &#60;/Skills&#62;
           </a>
         </li>
+
+        <li id="certifications-mobile-tab" class="mobile-navbar-tabs-li certifications" onclick="hidemenubyli()">
+          <a href="#certifications" tabindex="0" aria-label="certifications menu button">
+            &#60;/Certifications&#62;
+          </a>
+        </li>
+
         <li id="projects-mobile-tab" class="mobile-navbar-tabs-li projects" onclick="hidemenubyli()">
           <a href="#projects" tabindex="0" aria-label="projects menu button">
             &#60;/Projects&#62;
@@ -128,106 +145,111 @@
 
       <div class="text-content">
         <article id="hello-friend" data-aos="fade-up" data-aos-delay="0">
-          <p class="jello">V</p>
-          <p class="jello">a</p>
-          <p class="jello">n</p>
-          <p class="jello">a</p>
-          <p class="jello">k</p>
-          <p class="jello">k</p>
-          <p class="jello">a</p>
-          <p class="jello">m</p>
-          <p class="jello">(</p>
-          <p class="jello">)</p>
-          <p class="jello">;</p>
+          <span class="jello">V</span>
+          <span class="jello">a</span>
+          <span class="jello">n</span>
+          <span class="jello">a</span>
+          <span class="jello">k</span>
+          <span class="jello">k</span>
+          <span class="jello">a</span>
+          <span class="jello">m</span>
+          <span class="jello">(</span>
+          <span class="jello">)</span>
+          <span class="jello">;</span>
           &nbsp;
-          <p class="jello">I</p>
-          <p class="jello">'</p>
-          <p class="jello">m</p>
+          <span class="jello">I</span>
+          <span class="jello">'</span>
+          <span class="jello">m</span>
         </article>
-        <article id="name" data-aos="fade-up" data-aos-delay="200">
-          <p class="jello">B</p>
-          <p class="jello">a</p>
-          <p class="jello">l</p>
-          <p class="jello">a</p>
-          <p class="jello">g</p>
-          <p class="jello">a</p>
-          <p class="jello">n</p>
-          <p class="jello">e</p>
-          <p class="jello">s</p>
-          <p class="jello">h</p>
-          <p class="jello">.</p>
-          <p class="jello">.</p>
-          <p class="jello">.</p>
-          &nbsp;
 
+        <article id="name" data-aos="fade-up" data-aos-delay="200">
+          <span class="jello">B</span>
+          <span class="jello">a</span>
+          <span class="jello">l</span>
+          <span class="jello">a</span>
+          <span class="jello">g</span>
+          <span class="jello">a</span>
+          <span class="jello">n</span>
+          <span class="jello">e</span>
+          <span class="jello">s</span>
+          <span class="jello">h</span>
+          &nbsp;
+          <span class="jello"> </span>
+          <span class="jello">S</span>
+          <span class="jello">.</span>
+          <span class="jello">B</span>
+          <span class="jello">.</span>
         </article>
 
         <article id="work" data-aos="fade-up" data-aos-delay="400">
-          <div>
-            <p class="jello">I</p>
+          <div class="work-line">
+            <span class="jello">O</span>
+            <span class="jello">r</span>
+            <span class="jello">a</span>
+            <span class="jello">c</span>
+            <span class="jello">l</span>
+            <span class="jello">e</span>
           </div>
-          <div>
-            <p class="jello">d</p>
-            <p class="jello">e</p>
-            <p class="jello">s</p>
-            <p class="jello">i</p>
-            <p class="jello">g</p>
-            <p class="jello">n</p>
+          <div class="work-line">
+            <span class="jello">C</span>
+            <span class="jello">e</span>
+            <span class="jello">r</span>
+            <span class="jello">t</span>
+            <span class="jello">i</span>
+            <span class="jello">f</span>
+            <span class="jello">i</span>
+            <span class="jello">e</span>
+            <span class="jello">d</span>
           </div>
-          <div>
-            <p class="jello">&</p>
+          <div class="work-line">
+            <span class="jello">J</span>
+            <span class="jello">a</span>
+            <span class="jello">v</span>
+            <span class="jello">a</span>
           </div>
-          <div>
-            <p class="jello">c</p>
-            <p class="jello">o</p>
-            <p class="jello">d</p>
-            <p class="jello">e</p>
-          </div>
-          <div>
-            <p class="jello">f</p>
-            <p class="jello">o</p>
-            <p class="jello">r</p>
-          </div>
-          <div>
-            <p class="jello">f</p>
-            <p class="jello">u</p>
-            <p class="jello">n</p>
-            <p class="jello">.</p>
+          <div class="work-line">
+            <span class="jello">D</span>
+            <span class="jello">e</span>
+            <span class="jello">v</span>
+            <span class="jello">e</span>
+            <span class="jello">l</span>
+            <span class="jello">o</span>
+            <span class="jello">p</span>
+            <span class="jello">e</span>
+            <span class="jello">r</span>
+            <span class="jello">.</span>
           </div>
         </article>
         <p id="info-para" data-aos="fade-up" data-aos-delay="600">
-          As an Oracle Certified Java Developer, I thrive on crafting innovative and scalable applications that solve real-world problems.
-        </br>
-          <br /> With a strong foundation in Java programming and web development, I am driven by curiosity and a commitment to excellence.
-        </br>
-          <br /> Let's collaborate and turn visionary ideas into impactful solutions that inspire and elevate!
+          Oracle-certified Java developer with a B.Tech in Computer Science and Business Systems (CGPA: 8.97) and expertise in full-stack development and Android applications.
+          </br>
+          <br /> Gained hands-on experience through the Wipro TalentNext internship in Java, Spring Boot, Angular, and database management.
+          </br>
+          <br /> Developed impactful projects, including the Crime Connect mobile platform and the Luxe Leathers e-commerce site. Seeking opportunities to leverage technical skills in innovative development roles!
           <br />
         </p>
 
         <div class="contact-btn-div" data-aos="fade-up" data-aos-delay="800">
-          <a href="mailto:sbbalaganesh2004@gmail.com" tabindex="-1">
+          <a href="mailto:bxlz143@gmail.com" tabindex="-1">
             <button class="letsTalkBtn">
               <p class="letsTalkBtn-text">Let's Talk!</p>
               <span class="letsTalkBtn-BG"></span>
-            </button></a>
-          <div class="setting-container" id="setting-container">
-            <input type="checkbox" id="switchforsetting" onclick="settingtoggle()" />
+            </button>
+          </a>
 
-            <label for="switchforsetting" class="needtobeinvert" id="labelforsetting" tabindex="0" aria-label="settings for sound and appearance"></label>
-
-            <div class="visualmodetogglebuttoncontainer" id="visualmodetogglebuttoncontainer">
-              <input type="checkbox" id="switchforvisualmode" onclick="visualmode()" />
-              <label for="switchforvisualmode" id="labelforvisualmode" tabindex="0" aria-label="switch appearance"></label>
-            </div>
-
-            <div class="soundtogglebuttoncontainer" id="soundtogglebuttoncontainer">
-              <input type="checkbox" id="switchforsound" onclick="playpause()" />
-              <label for="switchforsound" id="labelforsound" tabindex="0" aria-label="switch sound" class="needtobeinvert"></label>
-            </div>
-          </div>
-          <!-- setting div ends -->
+          <button class="light-mode-toggle" onclick="visualmode()" aria-label="Toggle light mode">
+            <svg class="sun" viewBox="0 0 24 24">
+              <path d="M12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6A6,6 0 0,1 18,12A6,6 0 0,1 12,18M20,15.31L23.31,12L20,8.69V4H15.31L12,0.69L8.69,4H4V8.69L0.69,12L4,15.31V20H8.69L12,23.31L15.31,20H20V15.31Z" />
+            </svg>
+            <svg class="moon" viewBox="0 0 24 24">
+              <path d="M12,18C11.11,18 10.26,17.8 9.5,17.45C11.56,16.5 13,14.42 13,12C13,9.58 11.56,7.5 9.5,6.55C10.26,6.2 11.11,6 12,6A6,6 0 0,1 18,12A6,6 0 0,1 12,18Z" />
+            </svg>
+          </button>
         </div>
-        <!-- contact-btn-div -->
+
+        <!-- setting div ends -->
+      </div>
+      <!-- contact-btn-div -->
       </div>
 
     </section>
@@ -236,7 +258,7 @@
       <div class="about-section">
         <div class="section-heading">
           <h2 class="section-heading-article" tabindex="0" aria-label="About me heading">
-            &#60;/AboutMe&#62;
+            &#60;/About Me&#62;
           </h2>
           <p class="sectionHeadingP"></p>
         </div>
@@ -244,15 +266,18 @@
         <div class="info-dp-section">
           <div class="about-info">
             <p tabindex="0">
-                Hi, I'm Balaganesh, an Oracle Certified Java Developer with a passion for crafting efficient, scalable, and reliable software solutions. Although I am just starting my journey in the software development industry, I have honed my skills in Java programming, and Web Development. I enjoy solving complex problems and am dedicated to continuous learning and improvement.
+              Hi, I'm Balaganesh S B, an Oracle-certified Java developer with a B.Tech in Computer Science and Business Systems from Panimalar Engineering College (CGPA: 8.97). I have expertise in full-stack development and Android applications, with
+              hands-on experience gained through the Wipro TalentNext internship.
             </p>
             <br />
             <p tabindex="0">
-                Outside of coding, my creative spirit shines through my passion for photography, capturing moments that tell stories, and I love staying active at the gym to keep my mind and body in sync.
+              My technical journey includes developing impactful projects like the Crime Connect mobile platform and the Luxe Leathers e-commerce site. I specialize in Java, Spring Boot, Angular, React, and modern web technologies, with strong skills
+              in team collaboration, critical thinking, and stakeholder engagement.
             </p>
             <br />
             <p tabindex="0">
-            Currently, my focus is on diving deep into Java coding. There’s something incredibly fulfilling about building projects from the ground up and watching ideas blossom into reality through my code.
+              I'm passionate about leveraging technology to create innovative solutions. Outside of coding, my creative spirit shines through my passion for photography, capturing moments that tell stories, and I love
+              staying active at the gym to keep my mind and body in sync.
             </p>
             <!-- Resume button -->
             <button class="resume-btn" id="resume-btn" onclick="openURL()">
@@ -275,6 +300,30 @@
     </section>
     <!-- about section ends  -->
 
+    <!-- Experience Section -->
+    <section class="about-section-container" id="experience" data-aos="fade-up">
+      <div class="about-section">
+        <div class="section-heading">
+          <h2 class="section-heading-article" tabindex="0" aria-label="Experience heading">
+            &#60;/Experience&#62;
+          </h2>
+          <p class="sectionHeadingP"></p>
+        </div>
+
+        <div class="experience-details" data-aos="fade-up">
+          <div class="experience-company">Wipro TalentNext</div>
+          <div class="experience-role">Java Full Stack Development Intern</div>
+          <div class="experience-duration">May 2024 - Sept 2024</div>
+
+          <ul class="experience-points">
+            <li><strong>Developed End-to-End Java Applications:</strong> Built full-stack applications using Java, Spring Boot, and MySQL, enhancing system performance by 30% through optimized backend operations.</li>
+            <li><strong>Enhanced Frontend and Backend Integration:</strong> Strengthened the connection between frontend and backend layers by implementing RESTful APIs, resulting in a 25% faster response time.</li>
+            <li><strong>Integrated Advanced Technologies:</strong> Implemented technologies like Angular and Docker to facilitate containerization and modular design, achieving a 20% reduction in deployment time.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+    <!-- skills Section -->
     <section class="skills-section-container" id="skills">
       <div class="skills-section">
         <div class="section-heading" data-aos="fade-up">
@@ -285,71 +334,169 @@
         </div>
 
         <div class="frontend-dev-section">
-          <h3 class="frontend-dev-heading" data-aos="fade-up" tabindex="0" aria-label="As a frontend a developer these are the skills i have">
+          <h3 class="frontend-dev-heading" data-aos="fade-up" tabindex="0" aria-label="Technical skills and tech stack">
             Tech Stack
           </h3>
           <ul class="tech-stack-wrapper">
             <li class="tech-stack-box" data-aos="fade-up">
-              <img src="./src/png/javalogo.png" alt="Html skill" class="tech-stack-logo" />
+              <img src="./src/png/javalogo.png" alt="Java skill" class="tech-stack-logo" />
               <span class="tooltip">Java</span>
             </li>
 
             <li class="tech-stack-box" data-aos="fade-up">
-              <img src="./src/png/clogo.png" alt="css skill" class="tech-stack-logo" />
+              <img src="./src/png/androidlogo.png" alt="Android SDK skill" class="tech-stack-logo" />
+              <span class="tooltip">Android SDK</span>
+            </li>
+
+            <li class="tech-stack-box" data-aos="fade-up">
+              <img src="./src/png/springbootlogo.png" alt="Spring Boot skill" class="tech-stack-logo" />
+              <span class="tooltip">Spring Boot</span>
+            </li>
+
+            <li class="tech-stack-box" data-aos="fade-up">
+              <img src="./src/png/angularlogo.png" alt="Angular skill" class="tech-stack-logo" />
+              <span class="tooltip">Angular</span>
+            </li>
+
+            <li class="tech-stack-box" data-aos="fade-up">
+              <img src="./src/png/reactlogo.png" alt="React skill" class="tech-stack-logo" />
+              <span class="tooltip">React</span>
+            </li>
+
+
+            <li class="tech-stack-box" data-aos="fade-up">
+              <img src="./src/png/mysqllogo.png" alt="MySQL skill" class="tech-stack-logo" />
+              <span class="tooltip">MySQL</span>
+            </li>
+
+            <li class="tech-stack-box" data-aos="fade-up">
+              <img src="./src/png/sqlitelogo.png" alt="SQLite skill" class="tech-stack-logo" />
+              <span class="tooltip">SQLite</span>
+            </li>
+
+            <li class="tech-stack-box" data-aos="fade-up">
+              <img src="./src/png/htmllogo.png" alt="HTML skill" class="tech-stack-logo" />
+              <span class="tooltip">HTML5</span>
+            </li>
+
+            <li class="tech-stack-box" data-aos="fade-up">
+              <img src="./src/png/csslogo.png" alt="CSS skill" class="tech-stack-logo" />
+              <span class="tooltip">CSS3</span>
+            </li>
+
+            <li class="tech-stack-box" data-aos="fade-up">
+              <img src="./src/png/bootstraplogo.png" alt="Bootstrap skill" class="tech-stack-logo" />
+              <span class="tooltip">Bootstrap</span>
+            </li>
+
+            <li class="tech-stack-box" data-aos="fade-up">
+              <img src="./src/png/jslogo.png" alt="JavaScript skill" class="tech-stack-logo needtobeinvert" />
+              <span class="tooltip">JavaScript</span>
+            </li>
+
+            <li class="tech-stack-box" data-aos="fade-up">
+              <img src="./src/png/gitlogo.png" alt="Git skill" class="tech-stack-logo" />
+              <span class="tooltip">Git</span>
+            </li>
+
+            <li class="tech-stack-box" data-aos="fade-up">
+              <img src="./src/png/githublogo.png" alt="GitHub skill" class="tech-stack-logo" />
+              <span class="tooltip">GitHub</span>
+            </li>
+
+            <li class="tech-stack-box" data-aos="fade-up">
+              <img src="./src/png/dockerlogo.png" alt="Docker skill" class="tech-stack-logo" />
+              <span class="tooltip">Docker</span>
+            </li>
+
+            <li class="tech-stack-box" data-aos="fade-up">
+              <img src="./src/png/clogo.png" alt="C skill" class="tech-stack-logo" />
               <span class="tooltip">C</span>
             </li>
 
             <li class="tech-stack-box" data-aos="fade-up">
-              <img src="./src/png/c++logo.png" alt="js skill" class="tech-stack-logo" />
-              <span class="tooltip">C++</span>
-            </li>
-
-            <li class="tech-stack-box" data-aos="fade-up">
-              <img src="./src/png/pythonlogo.png" alt="git skill" class="tech-stack-logo" />
-              <span class="tooltip">PYTHON</span>
-            </li>
-
-            <li class="tech-stack-box" data-aos="fade-up">
-              <img src="./src/png/htmllogo.png" alt="bootstrap skill" class="tech-stack-logo" />
-              <span class="tooltip">HTML</span>
-            </li>
-
-            <li class="tech-stack-box" data-aos="fade-up">
-              <img src="./src/png/csslogo.png" alt="react skill" class="tech-stack-logo" />
-              <span class="tooltip">CSS</span>
-            </li>
-
-            <li class="tech-stack-box" data-aos="fade-up">
-              <img src="./src/png/jslogo.png" alt="github skill" class="tech-stack-logo needtobeinvert" />
-              <span class="tooltip">JS</span>
-            </li>
-
-            <li class="tech-stack-box" data-aos="fade-up">
-              <img src="./src/png/reactlogo.png" alt="git skill" class="tech-stack-logo" />
-              <span class="tooltip">REACT</span>
-            </li>
-
-            <li class="tech-stack-box" data-aos="fade-up">
-              <img src="./src/png/gitlogo.png" alt="c language skill" class="tech-stack-logo" />
-              <span class="tooltip">GIT</span>
-            </li>
-
-            <li class="tech-stack-box" data-aos="fade-up">
-              <img src="./src/png/githublogo.png" alt="c++ language skill" class="tech-stack-logo" />
-              <span class="tooltip">GITHUB</span>
-            </li>
-
-            <li class="tech-stack-box" data-aos="fade-up">
-              <img src="./src/png/canvalogo.png" alt="photoshop skill" class="tech-stack-logo" />
-              <span class="tooltip">CANVA</span>
-            </li>
-
+              <img src="./src/png/pythonlogo.png" alt="Python skill" class="tech-stack-logo" />
+              <span class="tooltip">Python</span>
             </li>
           </ul>
         </div>
       </div>
     </section>
     <!-- skills section ends -->
+
+    <!-- Certifications Section -->
+    <section class="certifications-section-container" id="certifications">
+      <div class="certifications-section">
+        <div class="section-heading" data-aos="fade-up">
+          <h2 class="section-heading-article" tabindex="0" aria-label="Certifications heading">
+            &#60;/Certifications&#62;
+          </h2>
+          <p class="sectionHeadingP"></p>
+        </div>
+
+        <!-- Certificate Modal (hidden by default) -->
+        <div id="certificateModal" class="modal">
+          <span class="close">&times;</span>
+          <img class="modal-content" id="modalImage">
+          <div id="caption"></div>
+        </div>
+
+        <div class="certification-card" data-aos="fade-up">
+          <div class="cert-badge">
+            <svg viewBox="0 0 24 24">
+              <path d="M12,15.39L8.24,17.66L9.23,13.38L5.91,10.5L10.29,10.13L12,6.09L13.71,10.13L18.09,10.5L14.77,13.38L15.76,17.66M22,9.24L14.81,8.63L12,2L9.19,8.63L2,9.24L7.45,13.97L5.82,21L12,17.27L18.18,21L16.54,13.97L22,9.24Z" />
+            </svg>
+          </div>
+          <div class="cert-header">
+            <div>
+              <div class="cert-title">Oracle Certified Generative AI Professional</div>
+              <div class="cert-issuer">Oracle Corporation</div>
+            </div>
+            <div class="cert-date">Jul 2024</div>
+          </div>
+          <a href="#" class="cert-link view-certificate" data-certificate="./src/certificates/Oracle-GenAi-Professional.jpg">
+            View Certificate
+          </a>
+        </div>
+
+        <div class="certification-card" data-aos="fade-up" data-aos-delay="200">
+          <div class="cert-badge">
+            <svg viewBox="0 0 24 24">
+              <path d="M12,15.39L8.24,17.66L9.23,13.38L5.91,10.5L10.29,10.13L12,6.09L13.71,10.13L18.09,10.5L14.77,13.38L15.76,17.66M22,9.24L14.81,8.63L12,2L9.19,8.63L2,9.24L7.45,13.97L5.82,21L12,17.27L18.18,21L16.54,13.97L22,9.24Z" />
+            </svg>
+          </div>
+          <div class="cert-header">
+            <div>
+              <div class="cert-title">Web Development Bootcamp</div>
+              <div class="cert-issuer">Udemy</div>
+            </div>
+            <div class="cert-date">Jul 2024</div>
+          </div>
+          <a href="#" class="cert-link view-certificate" data-certificate="./src/certificates/WEB-DEVELOPMENT.jpg">
+            View Certificate
+          </a>
+        </div>
+
+        <div class="certification-card" data-aos="fade-up" data-aos-delay="400">
+          <div class="cert-badge">
+            <svg viewBox="0 0 24 24">
+              <path d="M12,15.39L8.24,17.66L9.23,13.38L5.91,10.5L10.29,10.13L12,6.09L13.71,10.13L18.09,10.5L14.77,13.38L15.76,17.66M22,9.24L14.81,8.63L12,2L9.19,8.63L2,9.24L7.45,13.97L5.82,21L12,17.27L18.18,21L16.54,13.97L22,9.24Z" />
+            </svg>
+          </div>
+          <div class="cert-header">
+            <div>
+              <div class="cert-title">Oracle Certified Java Professional</div>
+              <div class="cert-issuer">Oracle Corporation</div>
+            </div>
+            <div class="cert-date">Apr 2024</div>
+          </div>
+          <a href="#" class="cert-link view-certificate" data-certificate="./src/certificates/ORACLE-JAVA-CERTIFIED-PROFESSIONAL.jpg">
+            View Certificate
+          </a>
+        </div>
+      </div>
+    </section>
+    <!-- Certificate End-->
     <section class="projects-section-container" id="projects">
       <div class="projects-section-div">
         <div class="section-heading" data-aos="fade-up">
@@ -363,13 +510,13 @@
             <div class="project-box project-box2" id="project-box2">
               <div class="info-div">
 
-                <article class="ProjectHeading">Amazon Shopping System</article>
+                <article class="ProjectHeading">Crime Connect</article>
                 <p class="ProjectDescription">
-                  Developed a simplified version of an Amazon shopping system using Java, allowing users to browse
-                  products, add them to a shopping cart, and complete purchases.
+                  Developed a comprehensive Android-based crime reporting platform connecting citizens with law enforcement agencies,
+                  resulting in a 35% increase in community engagement and crime reporting.Integrated real-time notification system with geographic filtering, enabling targeted alerts that
                 </p>
                 <div class="project-buttons">
-                  <a href="https://github.com/BALA1403/JAVA-AMAZON_SHOPPING_SYSTEM" target="_blank" class="github-redirect" aria-label="Visit Pexelicons on GitHub">
+                  <a href="https://github.com/BALA1403/crimeconnect02" target="_blank" class="github-redirect" aria-label="Visit Pexelicons on GitHub">
                     <img src="src/svg/github.svg" alt="github redirect button" />
                   </a>
 
@@ -381,7 +528,7 @@
                 </div>
               </div>
               <div class="image-div">
-                <img src="src/webp/amazonproject.png" alt="Pexelicon website preview image" />
+                <img src="src/webp/crimeconnectproject.png" alt="Pexelicon website preview image" />
               </div>
             </div>
           </div>
@@ -390,11 +537,12 @@
             <div class="project-box project-box5" id="project-box5">
               <div class="info-div">
 
-                <article class="ProjectHeading">Vehicle Management System</article>
+                <article class="ProjectHeading">Luxe Leathers</article>
                 <p class="ProjectDescription">
-                  Designed and implemented a Java-based application to manage various aspects of vehicle management, enabling tasks such as adding, updating, deleting, and viewing vehicle information. </p>
+                  Luxe-Leathers - Premium Leather Goods Online Store Luxe-Leathers is a modern, responsive e-commerce website offering a wide selection of premium leather products, from wallets and belts to handbags and jackets. Built using HTML,
+                  CSS, JavaScript, and Bootstrap, the site delivers a clean, elegant, and user-friendly shopping experience. </p>
                 <div class="project-buttons">
-                  <a href="https://github.com/BALA1403/JAVA_VEHICLE_MGNT_SYSTEM_PROJECT" target="_blank" class="github-redirect" aria-label="Visit Pexelicons on GitHub">
+                  <a href="https://github.com/BALA1403/Luxe-leathers" target="_blank" class="github-redirect" aria-label="Visit Pexelicons on GitHub">
                     <img src="src/svg/github.svg" alt="github redirect button" />
                     <svg viewBox="0 0 13 10" height="10px" width="15px">
                       <path d="M1,5 L11,5"></path>
@@ -404,7 +552,7 @@
                 </div>
               </div>
               <div class="image-div">
-                <img src="src/webp/vehiclemgntproject.png" alt="comickaze website preview image" />
+                <img src="src/webp/luxeleathersproject.png" alt="comickaze website preview image" />
               </div>
             </div>
           </div>
@@ -414,12 +562,13 @@
             <div class="project-box project-box2" id="project-box2">
               <div class="info-div">
 
-                <article class="ProjectHeading">ATM Management System</article>
+                <article class="ProjectHeading">Movie Dialogue Generator</article>
                 <p class="ProjectDescription">
-                  Developed an ATM (Automated Teller Machine) Management System in Java, simulating real-world ATM functionalities such as account management, balance inquiry, cash withdrawal, deposit, and fund transfers.
+                  This project is perfect for movie enthusiasts who enjoy interacting with iconic dialogues from both Hollywood and Kollywood. The app generates random movie dialogues, allowing you to relive memorable moments from your favorite
+                  films.
                 </p>
                 <div class="project-buttons">
-                  <a href="https://github.com/BALA1403/JAVA_ATM_PROJECT" target="_blank" class="github-redirect" aria-label="Visit Aquaregia on GitHub">
+                  <a href="https://github.com/BALA1403/MOVIE-DIALOGUE-GENERATOR" target="_blank" class="github-redirect" aria-label="Visit Aquaregia on GitHub">
                     <img src="src/svg/github.svg" alt="github redirect button" />
                   </a>
 
@@ -431,7 +580,7 @@
                 </div>
               </div>
               <div class="image-div">
-                <img src="src/webp/atmproject.png" alt="Aquaregia website preview image" />
+                <img src="src/webp/moviedialgueproject.png" alt="Aquaregia website preview image" />
               </div>
             </div>
           </div>
@@ -440,13 +589,13 @@
             <div class="project-box project-box4" id="project-box4">
               <div class="info-div">
 
-                <article class="ProjectHeading">Calorie Calculator</article>
+                <article class="ProjectHeading">Live Code Editor</article>
                 <p class="ProjectDescription">
-                  Designed to help users manage their dietary intake by calculating the number of calories consumed. The application allows users to input their daily food consumption, and it
-                  provides a summary of total calories based on the nutritional information of the foods consumed.
+                  The Live Code Editor is a web-based application that allows users to write and test code in HTML, CSS, and JavaScript instantly. Built using HTML, CSS, and JavaScript, this editor provides a seamless environment for developers to
+                  experiment with code, see the results live, and learn interactively.
                 </p>
                 <div class="project-buttons">
-                  <a href="https://github.com/BALA1403/JAVA_CALORIE_CALCULATOR_PROJECT" target="_blank" class="github-redirect" aria-label="Visit qr generator on github">
+                  <a href="https://github.com/BALA1403/live-code-editor" target="_blank" class="github-redirect" aria-label="Visit qr generator on github">
                     <img src="src/svg/github.svg" alt="github redirect button" />
                   </a>
 
@@ -458,7 +607,7 @@
                 </div>
               </div>
               <div class="image-div">
-                <img src="src/webp/calorieproject.png" alt="qr generator website preview image" />
+                <img src="src/webp/livecodeproject.png" alt="qr generator website preview image" />
               </div>
             </div>
           </div>
@@ -467,13 +616,13 @@
           <div class="project-box-wrapper" data-aos="fade-up">
             <div class="project-box project-box3" id="project-box3">
               <div class="info-div">
-                <article class="ProjectHeading">Eda on Healthcare Management</article>
+                <article class="ProjectHeading">Banking System</article>
                 <p class="ProjectDescription">
-                  Exploratory Data Analysis (EDA) plays a crucial role in healthcare management by leveraging data-driven insights to enhance decision-making processes, optimize resource allocation, improve patient outcomes, and streamline operations
-                  within healthcare organizations.
+                  The Banking System is an ATM Simulator developed using Java and SQL, designed to replicate essential banking functionalities in a user-friendly interface. It allows users to open accounts, deposit and withdraw funds, view mini
+                  statements, and change their PINs. Utilizing Java for backend logic and SQL for secure data management, this project offers
                 </p>
                 <div class="project-buttons">
-                  <a href="https://github.com/BALA1403/JAVA_CALORIE_CALCULATOR_PROJECT" target="_blank" class="github-redirect" aria-label="Visit Netflix clone on GitHub">
+                  <a href="https://github.com/BALA1403/BANKING_SYSTEM" target="_blank" class="github-redirect" aria-label="Visit Netflix clone on GitHub">
                     <img src="src/svg/github.svg" alt="github redirect button" />
                   </a>
 
@@ -485,7 +634,7 @@
                 </div>
               </div>
               <div class="image-div">
-                <img src="src/webp/edaproject.png" alt="netflix clone website preview image" />
+                <img src="src/webp/bankingproject.png" alt="netflix clone website preview image" />
               </div>
             </div>
           </div>
@@ -517,21 +666,25 @@
             <article>GetinTouch();</article>
           </div>
           <div class="logos">
-            <a href="https://www.instagram.com/bxlz.14?igsh=NmxwdWltNHpmOGhl" target="_blank" tabindex="0" aria-label="My Instagram">
-              <svg viewBox="0 0 448 512" class="SocialHandle">
-                <path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z" />
+
+            <a href="https://leetcode.com/u/bxlz14/" target="_blank" tabindex="0" aria-label="My LeetCode Profile">
+              <svg viewBox="0 0 24 24" class="SocialHandle">
+                <path
+                  d="M16.102 17.93l-2.697 2.607c-.466.467-1.111.662-1.823.662s-1.357-.195-1.824-.662l-4.332-4.363c-.467-.467-.702-1.15-.702-1.863s.235-1.357.702-1.824l4.319-4.38c.467-.467 1.125-.645 1.837-.645s1.357.195 1.823.662l2.697 2.606c.514.515 1.365.497 1.9-.038.535-.536.553-1.387.039-1.901l-2.609-2.636a5.055 5.055 0 0 0-2.445-1.337l2.467-2.503c.516-.514.498-1.366-.037-1.901-.535-.535-1.387-.552-1.902-.038l-10.1 10.101c-.981.982-1.494 2.337-1.494 3.835 0 1.498.513 2.895 1.494 3.875l4.347 4.361c.981.979 2.337 1.452 3.834 1.452s2.853-.512 3.835-1.494l2.609-2.637c.514-.514.496-1.365-.039-1.9s-1.386-.553-1.899-.039zM20.811 13.01H10.666c-.702 0-1.27.604-1.27 1.346s.568 1.346 1.27 1.346h10.145c.701 0 1.27-.604 1.27-1.346s-.569-1.346-1.27-1.346z"
+                  fill-rule="evenodd" />
               </svg>
             </a>
-
             <a href="https://www.linkedin.com/in/balaganesh-s-b-3b4b12228/_referer=" target="_blank" aria-label="My LinkedIn">
               <svg class="SocialHandle" viewBox="0 0 448 512">
-                <path d="M100.28 448H7.4V148.9h92.88zM53.79 108.1C24.09 108.1 0 83.5 0 53.8a53.79 53.79 0 0 1 107.58 0c0 29.7-24.1 54.3-53.79 54.3zM447.9 448h-92.68V302.4c0-34.7-.7-79.2-48.29-79.2-48.29 0-55.69 37.7-55.69 76.7V448h-92.78V148.9h89.08v40.8h1.3c12.4-23.5 42.69-48.3 87.88-48.3 94 0 111.28 61.9 111.28 142.3V448z" />
+                <path
+                  d="M100.28 448H7.4V148.9h92.88zM53.79 108.1C24.09 108.1 0 83.5 0 53.8a53.79 53.79 0 0 1 107.58 0c0 29.7-24.1 54.3-53.79 54.3zM447.9 448h-92.68V302.4c0-34.7-.7-79.2-48.29-79.2-48.29 0-55.69 37.7-55.69 76.7V448h-92.78V148.9h89.08v40.8h1.3c12.4-23.5 42.69-48.3 87.88-48.3 94 0 111.28 61.9 111.28 142.3V448z" />
               </svg>
             </a>
 
             <a href="https://github.com/BALA1403" target="_blank" aria-label="My GitHub">
               <svg viewBox="0 0 496 512" class="SocialHandle">
-                <path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17.3 23.6 17.3 48.1 0 35.3-.3 76.4-.3 86.9 0 6.5 4.6 14.4 17.3 12.1C426.2 458.5 496 363.4 496 252c0-138.7-106.1-244-251.2-244z" />
+                <path
+                  d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17.3 23.6 17.3 48.1 0 35.3-.3 76.4-.3 86.9 0 6.5 4.6 14.4 17.3 12.1C426.2 458.5 496 363.4 496 252c0-138.7-106.1-244-251.2-244z" />
               </svg>
             </a>
           </div>
@@ -539,8 +692,8 @@
       </div>
     </div>
     <div class="copyright">
-    <article>&copy; Balaganesh 2024</article>
-</div>
+      <article>&copy; Balaganesh 2024</article>
+    </div>
 
   </footer>
 
@@ -597,6 +750,6 @@
     });
   </script>
 
-</body>
+  </body>
 
 </html>
