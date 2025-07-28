@@ -282,6 +282,18 @@ header {
   justify-content: center;
   overflow: hidden;
   z-index: 999;
+  /* Ensure it's clickable */
+  pointer-events: all;
+  /* Improve touch target size for mobile */
+  min-width: 44px;
+  min-height: 44px;
+  /* Remove any webkit tap highlight */
+  -webkit-tap-highlight-color: transparent;
+  /* Prevent text selection */
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .light-mode-toggle:hover {
@@ -291,7 +303,6 @@ header {
 
 .light-mode-toggle svg {
   width: 16px;
-  height: 16px;
   fill: var(--text-primary);
   transition: all 0.3s ease;
   position: absolute;
