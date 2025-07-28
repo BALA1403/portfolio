@@ -3,12 +3,19 @@ Welcome to my professional portfolio, where I showcase my journey as a passionat
 
 ## Screenshots
 HOW IT WORKS ON LAPTOP/PC LANDSCAPE:
-![App Screenshot](src/screenshots/screenshot_03.png)
+
 ![App Screenshot](src/screenshots/screenshot_01.png)
+
 ![App Screenshot](src/screenshots/screenshot_02.png)
 
+![App Screenshot](src/screenshots/screenshot_03.png)
+
+![App Screenshot](src/screenshots/screenshot_04.png)
+
 HOW IT WORKS ON MOBILE VERTICAL:
+
 ![App Screenshot](src/screenshots/screenshot_mobile01.jpg)
+
 ![App Screenshot](src/screenshots/screenshot_mobile02.jpg)
 
 Key Features:
