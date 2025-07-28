@@ -72,7 +72,7 @@ const Utils = {
   }
 };
 
-// Theme Management
+// Theme Management - FIXED FOR BRAVE BROWSER
 const ThemeManager = {
   init() {
     this.loadThemePreference();
@@ -97,14 +97,16 @@ const ThemeManager = {
         themeColorMeta.setAttribute('content', isLight ? '#EDE8DC' : '#000B58');
       }
 
-      // Visual feedback for mobile
-      const button = Utils.$('.light-mode-toggle');
-      if (button) {
-        button.style.transform = 'scale(0.9)';
-        setTimeout(() => {
-          button.style.transform = '';
-        }, 150);
-      }
+      // Visual feedback
+      const buttons = Utils.$$('.light-mode-toggle, .mobile-theme-toggle');
+      buttons.forEach(button => {
+        if (button) {
+          button.style.transform = 'scale(0.9)';
+          setTimeout(() => {
+            button.style.transform = '';
+          }, 150);
+        }
+      });
 
       // Dispatch custom event
       document.dispatchEvent(new CustomEvent('themeChanged', {
@@ -133,12 +135,43 @@ const ThemeManager = {
   },
 
   bindEvents() {
-    const toggleBtn = Utils.$('.light-mode-toggle');
+    // Desktop toggle button
+    const toggleBtn = Utils.$('#theme-toggle');
     if (toggleBtn) {
-      toggleBtn.addEventListener('click', this.toggle.bind(this));
+      // Remove any existing listeners first
+      toggleBtn.replaceWith(toggleBtn.cloneNode(true));
+      const newToggleBtn = Utils.$('#theme-toggle');
+
+      newToggleBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.toggle();
+      });
 
       // Add keyboard support
-      toggleBtn.addEventListener('keydown', (e) => {
+      newToggleBtn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          this.toggle();
+        }
+      });
+    }
+
+    // Mobile toggle button
+    const mobileToggleBtn = Utils.$('#mobile-theme-toggle');
+    if (mobileToggleBtn) {
+      // Remove any existing listeners first
+      mobileToggleBtn.replaceWith(mobileToggleBtn.cloneNode(true));
+      const newMobileToggleBtn = Utils.$('#mobile-theme-toggle');
+
+      newMobileToggleBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.toggle();
+      });
+
+      // Add keyboard support
+      newMobileToggleBtn.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           this.toggle();
@@ -147,17 +180,7 @@ const ThemeManager = {
     }
   }
 };
-// Load saved theme preference
-function loadThemePreference() {
-  if (typeof(Storage) !== "undefined") {
-    const isLightMode = localStorage.getItem("lightMode");
-    if (isLightMode === "true") {
-      document.body.classList.add("light-mode");
-      const themeColorMeta = document.querySelector('meta[name="theme-color"]');
-      themeColorMeta.setAttribute('content', '#EDE8DC');
-    }
-  }
-}
+
 // Preloader Management
 const PreloaderManager = {
   init() {
@@ -279,13 +302,14 @@ const AnimationManager = {
   }
 };
 
-// Navigation Management
+// Navigation Management - FIXED HAMBURGER MENU
 const NavigationManager = {
   init() {
     this.bindSmoothScroll();
     this.bindScrollEvents();
     this.bindHamburgerMenu();
     this.bindBackToTop();
+    this.bindMobileMenuLinks();
   },
 
   bindSmoothScroll() {
@@ -362,8 +386,27 @@ const NavigationManager = {
   bindHamburgerMenu() {
     const hamburgerBtn = Utils.$('#hamburger-button');
     if (hamburgerBtn) {
-      hamburgerBtn.addEventListener('click', this.toggleMobileMenu.bind(this));
+      // Remove any existing listeners
+      hamburgerBtn.replaceWith(hamburgerBtn.cloneNode(true));
+      const newHamburgerBtn = Utils.$('#hamburger-button');
+
+      newHamburgerBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.toggleMobileMenu();
+      });
     }
+  },
+
+  bindMobileMenuLinks() {
+    const mobileLinks = Utils.$$('.mobile-navbar-tabs-ul li a');
+    mobileLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        setTimeout(() => {
+          this.closeMobileMenu();
+        }, 300);
+      });
+    });
   },
 
   toggleMobileMenu() {
@@ -672,35 +715,8 @@ function openURL() {
 }
 
 // Legacy function names for backward compatibility
-// Replace the existing visualmode() function with this:
 function toggleVisualMode() {
-  try {
-    document.body.classList.toggle("light-mode");
-
-    // Save preference to localStorage
-    if (typeof(Storage) !== "undefined") {
-      localStorage.setItem("lightMode", document.body.classList.contains("light-mode"));
-    }
-
-    // Update theme color meta tag
-    const themeColorMeta = document.querySelector('meta[name="theme-color"]');
-    if (document.body.classList.contains("light-mode")) {
-      themeColorMeta.setAttribute('content', '#EDE8DC');
-    } else {
-      themeColorMeta.setAttribute('content', '#000B58');
-    }
-
-    // Add visual feedback for mobile
-    const button = document.querySelector('.light-mode-toggle');
-    if (button) {
-      button.style.transform += ' scale(0.9)';
-      setTimeout(() => {
-        button.style.transform = button.style.transform.replace(' scale(0.9)', '');
-      }, 150);
-    }
-  } catch (error) {
-    console.error("Error in toggleVisualMode:", error);
-  }
+  ThemeManager.toggle();
 }
 
 // Make sure this function is available globally
