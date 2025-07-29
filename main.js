@@ -74,113 +74,145 @@ const Utils = {
 
 // Theme Management - FIXED FOR BRAVE BROWSER
 const ThemeManager = {
+  isToggling: false,
+
   init() {
     this.loadThemePreference();
-    this.bindEvents();
+    // Delay binding events to ensure DOM is ready
+    setTimeout(() => {
+      this.bindEvents();
+    }, 100);
   },
 
   toggle() {
+    // Prevent rapid successive calls
+    if (this.isToggling) return;
+    this.isToggling = true;
+
     try {
       const body = document.body;
-      const isLight = body.classList.toggle("light-mode");
+      const isCurrentlyLight = body.classList.contains("light-mode");
 
-      AppState.theme = isLight ? 'light' : 'dark';
-
-      // Save preference
-      if (Utils.hasSupport('localStorage')) {
-        localStorage.setItem("lightMode", isLight);
+      // Use a more reliable toggle method
+      if (isCurrentlyLight) {
+        body.classList.remove("light-mode");
+        AppState.theme = 'dark';
+      } else {
+        body.classList.add("light-mode");
+        AppState.theme = 'light';
       }
+
+      // Save preference with error handling
+      this.saveThemePreference(!isCurrentlyLight);
 
       // Update theme color meta tag
-      const themeColorMeta = Utils.$('meta[name="theme-color"]');
-      if (themeColorMeta) {
-        themeColorMeta.setAttribute('content', isLight ? '#EDE8DC' : '#000B58');
-      }
+      this.updateThemeColor(!isCurrentlyLight);
 
-      // Visual feedback
-      const buttons = Utils.$$('.light-mode-toggle, .mobile-theme-toggle');
-      buttons.forEach(button => {
-        if (button) {
-          button.style.transform = 'scale(0.9)';
-          setTimeout(() => {
-            button.style.transform = '';
-          }, 150);
-        }
-      });
+      // Visual feedback with better timing
+      this.provideFeedback();
 
       // Dispatch custom event
       document.dispatchEvent(new CustomEvent('themeChanged', {
-        detail: {
-          theme: AppState.theme
-        }
+        detail: { theme: AppState.theme }
       }));
 
     } catch (error) {
       console.error("Theme toggle error:", error);
+    } finally {
+      // Reset toggle lock after animation completes
+      setTimeout(() => {
+        this.isToggling = false;
+      }, 400);
+    }
+  },
+
+  saveThemePreference(isLight) {
+    try {
+      if (Utils.hasSupport('localStorage')) {
+        localStorage.setItem("lightMode", isLight.toString());
+      }
+    } catch (error) {
+      console.warn("Could not save theme preference:", error);
+    }
+  },
+
+  updateThemeColor(isLight) {
+    const themeColorMeta = Utils.$('meta[name="theme-color"]');
+    if (themeColorMeta) {
+      themeColorMeta.setAttribute('content', isLight ? '#fafafa' : '#0a0a0f');
+    }
+  },
+
+  provideFeedback() {
+    const button = Utils.$('.light-mode-toggle');
+    if (button) {
+      button.style.transform = 'scale(0.9)';
+      // Use requestAnimationFrame for smoother animation
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          button.style.transform = '';
+        }, 150);
+      });
     }
   },
 
   loadThemePreference() {
-    if (Utils.hasSupport('localStorage')) {
-      const isLightMode = localStorage.getItem("lightMode");
-      if (isLightMode === "true") {
-        document.body.classList.add("light-mode");
-        AppState.theme = 'light';
-        const themeColorMeta = Utils.$('meta[name="theme-color"]');
-        if (themeColorMeta) {
-          themeColorMeta.setAttribute('content', '#EDE8DC');
+    try {
+      if (Utils.hasSupport('localStorage')) {
+        const savedTheme = localStorage.getItem("lightMode");
+        if (savedTheme === "true") {
+          document.body.classList.add("light-mode");
+          AppState.theme = 'light';
+          this.updateThemeColor(true);
         }
       }
+    } catch (error) {
+      console.warn("Could not load theme preference:", error);
     }
   },
 
   bindEvents() {
-    // Desktop toggle button
-    const toggleBtn = Utils.$('#theme-toggle');
-    if (toggleBtn) {
-      // Remove any existing listeners first
-      toggleBtn.replaceWith(toggleBtn.cloneNode(true));
-      const newToggleBtn = Utils.$('#theme-toggle');
+    // Find the main toggle button (remove any mobile-specific ones)
+    const toggleBtn = Utils.$('.light-mode-toggle');
+    if (!toggleBtn) return;
 
-      newToggleBtn.addEventListener('click', (e) => {
+    // Clean slate - remove all existing listeners
+    const newToggleBtn = toggleBtn.cloneNode(true);
+    toggleBtn.parentNode.replaceChild(newToggleBtn, toggleBtn);
+
+    // Add single, optimized event listener
+    newToggleBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      this.toggle();
+    }, { passive: false });
+
+    // Add touch event for better mobile handling (especially Brave)
+    newToggleBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+    }, { passive: false });
+
+    newToggleBtn.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.toggle();
+    }, { passive: false });
+
+    // Add keyboard support
+    newToggleBtn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        e.stopPropagation();
         this.toggle();
-      });
+      }
+    });
 
-      // Add keyboard support
-      newToggleBtn.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          this.toggle();
-        }
-      });
-    }
-
-    // Mobile toggle button
-    const mobileToggleBtn = Utils.$('#mobile-theme-toggle');
-    if (mobileToggleBtn) {
-      // Remove any existing listeners first
-      mobileToggleBtn.replaceWith(mobileToggleBtn.cloneNode(true));
-      const newMobileToggleBtn = Utils.$('#mobile-theme-toggle');
-
-      newMobileToggleBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        this.toggle();
-      });
-
-      // Add keyboard support
-      newMobileToggleBtn.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          this.toggle();
-        }
-      });
+    // Remove any legacy global function calls
+    if (window.visualmode) {
+      delete window.visualmode;
     }
   }
 };
-
 // Preloader Management
 const PreloaderManager = {
   init() {
