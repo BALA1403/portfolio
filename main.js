@@ -75,62 +75,98 @@ const Utils = {
 // Theme Management - FIXED FOR BRAVE BROWSER
 const ThemeManager = {
   isToggling: false,
+  currentTheme: 'dark',
 
   init() {
     this.loadThemePreference();
-    // Delay binding events to ensure DOM is ready
-    setTimeout(() => {
-      this.bindEvents();
-    }, 100);
-  },
-
-  toggle() {
-    // Prevent rapid successive calls
-    if (this.isToggling) return;
-    this.isToggling = true;
-
-    try {
-      const body = document.body;
-      const isCurrentlyLight = body.classList.contains("light-mode");
-
-      // Use a more reliable toggle method
-      if (isCurrentlyLight) {
-        body.classList.remove("light-mode");
-        AppState.theme = 'dark';
-      } else {
-        body.classList.add("light-mode");
-        AppState.theme = 'light';
-      }
-
-      // Save preference with error handling
-      this.saveThemePreference(!isCurrentlyLight);
-
-      // Update theme color meta tag
-      this.updateThemeColor(!isCurrentlyLight);
-
-      // Visual feedback with better timing
-      this.provideFeedback();
-
-      // Dispatch custom event
-      document.dispatchEvent(new CustomEvent('themeChanged', {
-        detail: { theme: AppState.theme }
-      }));
-
-    } catch (error) {
-      console.error("Theme toggle error:", error);
-    } finally {
-      // Reset toggle lock after animation completes
-      setTimeout(() => {
-        this.isToggling = false;
-      }, 400);
+    // Wait for DOM to be fully ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => this.bindEvents(), 200);
+      });
+    } else {
+      setTimeout(() => this.bindEvents(), 200);
     }
   },
 
-  saveThemePreference(isLight) {
+  toggle() {
+    // Prevent multiple rapid calls
+    if (this.isToggling) {
+      console.log('Toggle already in progress, skipping');
+      return;
+    }
+
+    this.isToggling = true;
+    console.log('Theme toggle started, current:', this.currentTheme);
+
     try {
-      if (Utils.hasSupport('localStorage')) {
-        localStorage.setItem("lightMode", isLight.toString());
+      const body = document.body;
+      const wasLight = body.classList.contains("light-mode");
+
+      // Force a clean toggle
+      if (wasLight) {
+        body.classList.remove("light-mode");
+        this.currentTheme = 'dark';
+        AppState.theme = 'dark';
+      } else {
+        body.classList.add("light-mode");
+        this.currentTheme = 'light';
+        AppState.theme = 'light';
       }
+
+      console.log('Theme changed to:', this.currentTheme);
+
+      // Save preference immediately
+      this.saveThemePreference();
+
+      // Update meta tag
+      this.updateThemeColor();
+
+      // Visual feedback
+      this.provideFeedback();
+
+      // Dispatch event
+      try {
+        document.dispatchEvent(new CustomEvent('themeChanged', {
+          detail: {
+            theme: this.currentTheme
+          }
+        }));
+      } catch (e) {
+        console.warn('Event dispatch failed:', e);
+      }
+
+    } catch (error) {
+      console.error("Theme toggle error:", error);
+    }
+
+    // Reset lock with longer delay for Brave
+    setTimeout(() => {
+      this.isToggling = false;
+      console.log('Toggle lock released');
+    }, 600);
+  },
+
+
+  saveThemePreference() {
+    try {
+      // Multiple fallback methods for saving theme
+      const themeValue = this.currentTheme === 'light' ? 'true' : 'false';
+
+      // Method 1: localStorage
+      if (typeof Storage !== "undefined") {
+        localStorage.setItem("lightMode", themeValue);
+        console.log('Theme saved to localStorage:', themeValue);
+      }
+
+      // Method 2: sessionStorage as fallback
+      if (typeof sessionStorage !== "undefined") {
+        sessionStorage.setItem("lightMode", themeValue);
+      }
+
+      // Method 3: Document cookie as last resort
+      document.cookie = `lightMode=${themeValue}; path=/; max-age=31536000`;
+
     } catch (error) {
       console.warn("Could not save theme preference:", error);
     }
@@ -158,59 +194,129 @@ const ThemeManager = {
 
   loadThemePreference() {
     try {
-      if (Utils.hasSupport('localStorage')) {
-        const savedTheme = localStorage.getItem("lightMode");
-        if (savedTheme === "true") {
-          document.body.classList.add("light-mode");
-          AppState.theme = 'light';
-          this.updateThemeColor(true);
+      let savedTheme = null;
+
+      // Try multiple methods to load theme
+      // Method 1: localStorage
+      if (typeof Storage !== "undefined") {
+        savedTheme = localStorage.getItem("lightMode");
+      }
+
+      // Method 2: sessionStorage
+      if (!savedTheme && typeof sessionStorage !== "undefined") {
+        savedTheme = sessionStorage.getItem("lightMode");
+      }
+
+      // Method 3: Document cookie
+      if (!savedTheme) {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+          const [name, value] = cookie.trim().split('=');
+          if (name === 'lightMode') {
+            savedTheme = value;
+            break;
+          }
         }
       }
+
+      console.log('Loaded theme preference:', savedTheme);
+
+      if (savedTheme === "true") {
+        document.body.classList.add("light-mode");
+        this.currentTheme = 'light';
+        AppState.theme = 'light';
+        this.updateThemeColor();
+      } else {
+        this.currentTheme = 'dark';
+        AppState.theme = 'dark';
+      }
+
     } catch (error) {
       console.warn("Could not load theme preference:", error);
+      this.currentTheme = 'dark';
+      AppState.theme = 'dark';
+    }
+  },
+  updateThemeColor() {
+    const themeColorMeta = Utils.$('meta[name="theme-color"]');
+    if (themeColorMeta) {
+      const color = this.currentTheme === 'light' ? '#fafafa' : '#0a0a0f';
+      themeColorMeta.setAttribute('content', color);
+      console.log('Meta theme color updated to:', color);
+    }
+  },
+
+  provideFeedback() {
+    const button = Utils.$('.light-mode-toggle');
+    if (button) {
+      // Immediate visual feedback
+      button.style.transform = 'scale(0.9)';
+      button.style.transition = 'transform 0.1s ease';
+
+      setTimeout(() => {
+        button.style.transform = '';
+        button.style.transition = 'all 0.3s ease';
+      }, 150);
     }
   },
 
   bindEvents() {
-    // Find the main toggle button (remove any mobile-specific ones)
-    const toggleBtn = Utils.$('.light-mode-toggle');
-    if (!toggleBtn) return;
+    console.log('Binding theme toggle events');
 
-    // Clean slate - remove all existing listeners
+    const toggleBtn = Utils.$('.light-mode-toggle');
+    if (!toggleBtn) {
+      console.error('Theme toggle button not found');
+      return;
+    }
+
+    // Remove all existing event listeners by cloning
     const newToggleBtn = toggleBtn.cloneNode(true);
     toggleBtn.parentNode.replaceChild(newToggleBtn, toggleBtn);
 
-    // Add single, optimized event listener
-    newToggleBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      e.stopImmediatePropagation();
-      this.toggle();
-    }, { passive: false });
+    // Bind multiple event types for maximum compatibility
+    const events = ['click', 'touchend'];
 
-    // Add touch event for better mobile handling (especially Brave)
+    events.forEach(eventType => {
+      newToggleBtn.addEventListener(eventType, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+
+        console.log(`Theme toggle triggered by ${eventType}`);
+
+        // Add small delay for touch events on mobile
+        if (eventType === 'touchend') {
+          setTimeout(() => this.toggle(), 50);
+        } else {
+          this.toggle();
+        }
+      }, {
+        passive: false,
+        capture: true
+      });
+    });
+
+    // Prevent touchstart to avoid double events
     newToggleBtn.addEventListener('touchstart', (e) => {
       e.preventDefault();
-    }, { passive: false });
+    }, {
+      passive: false
+    });
 
-    newToggleBtn.addEventListener('touchend', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      this.toggle();
-    }, { passive: false });
-
-    // Add keyboard support
+    // Keyboard support
     newToggleBtn.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
+        console.log('Theme toggle triggered by keyboard');
         this.toggle();
       }
     });
 
-    // Remove any legacy global function calls
-    if (window.visualmode) {
-      delete window.visualmode;
-    }
+    // Make globally available
+    window.visualmode = () => this.toggle();
+    window.toggleVisualMode = () => this.toggle();
+
+    console.log('Theme toggle events bound successfully');
   }
 };
 // Preloader Management
@@ -415,49 +521,119 @@ const NavigationManager = {
     }
   },
 
+
   bindHamburgerMenu() {
     const hamburgerBtn = Utils.$('#hamburger-button');
+    const hamburgerContainer = Utils.$('#hamburger');
+
     if (hamburgerBtn) {
       // Remove any existing listeners
       hamburgerBtn.replaceWith(hamburgerBtn.cloneNode(true));
       const newHamburgerBtn = Utils.$('#hamburger-button');
 
+      // Add click event
       newHamburgerBtn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
         this.toggleMobileMenu();
       });
+
+      // Add touch events for mobile
+      newHamburgerBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.toggleMobileMenu();
+      });
     }
+
+    // Also bind to the container for better touch target
+    if (hamburgerContainer) {
+      hamburgerContainer.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.toggleMobileMenu();
+      });
+    }
+
+    // Make sure the function is globally available
+    window.hamburgerMenu = () => this.toggleMobileMenu();
   },
 
   bindMobileMenuLinks() {
     const mobileLinks = Utils.$$('.mobile-navbar-tabs-ul li a');
+    const mobileListItems = Utils.$$('.mobile-navbar-tabs-ul li');
+
     mobileLinks.forEach(link => {
-      link.addEventListener('click', () => {
+      link.addEventListener('click', (e) => {
+        console.log('Mobile menu link clicked');
         setTimeout(() => {
           this.closeMobileMenu();
         }, 300);
       });
     });
+
+    // Also bind to list items for better touch targets
+    mobileListItems.forEach(item => {
+      item.addEventListener('click', (e) => {
+        const link = item.querySelector('a');
+        if (link && e.target !== link) {
+          link.click();
+        }
+      });
+    });
+
+    // Make the close function globally available
+    window.hidemenubyli = () => this.closeMobileMenu();
   },
 
   toggleMobileMenu() {
     try {
       const body = document.body;
       const menu = Utils.$('#mobiletogglemenu');
-      const bars = ["burger-bar1", "burger-bar2", "burger-bar3"];
+      const hamburger = Utils.$('#hamburger');
 
-      if (!menu) return;
+      if (!menu) {
+        console.error('Mobile menu not found');
+        return;
+      }
 
+      // Toggle the state
       AppState.isMobileMenuOpen = !AppState.isMobileMenuOpen;
 
-      body.classList.toggle("stopscrolling", AppState.isMobileMenuOpen);
-      menu.classList.toggle("show-toggle-menu", AppState.isMobileMenuOpen);
+      console.log('Toggling mobile menu:', AppState.isMobileMenuOpen); // Debug log
 
-      bars.forEach((barId, index) => {
-        const bar = Utils.$(`#${barId}`);
-        if (bar) {
-          bar.classList.toggle(`hamburger-animation${index + 1}`, AppState.isMobileMenuOpen);
+      // Toggle body scroll
+      if (AppState.isMobileMenuOpen) {
+        body.classList.add("stopscrolling");
+        menu.classList.add("show-toggle-menu");
+      } else {
+        body.classList.remove("stopscrolling");
+        menu.classList.remove("show-toggle-menu");
+      }
+
+      // Animate hamburger bars
+      const bars = [{
+          id: 'burger-bar1',
+          class: 'hamburger-animation1'
+        },
+        {
+          id: 'burger-bar2',
+          class: 'hamburger-animation2'
+        },
+        {
+          id: 'burger-bar3',
+          class: 'hamburger-animation3'
+        }
+      ];
+
+      bars.forEach(bar => {
+        const element = Utils.$(`#${bar.id}`);
+        if (element) {
+          if (AppState.isMobileMenuOpen) {
+            element.classList.add(bar.class);
+          } else {
+            element.classList.remove(bar.class);
+          }
         }
       });
 
@@ -471,7 +647,19 @@ const NavigationManager = {
 
     const body = document.body;
     const menu = Utils.$('#mobiletogglemenu');
-    const bars = ["burger-bar1", "burger-bar2", "burger-bar3"];
+    const bars = [{
+        id: 'burger-bar1',
+        class: 'hamburger-animation1'
+      },
+      {
+        id: 'burger-bar2',
+        class: 'hamburger-animation2'
+      },
+      {
+        id: 'burger-bar3',
+        class: 'hamburger-animation3'
+      }
+    ];
 
     AppState.isMobileMenuOpen = false;
     body.classList.remove("stopscrolling");
@@ -480,10 +668,10 @@ const NavigationManager = {
       menu.classList.remove("show-toggle-menu");
     }
 
-    bars.forEach((barId, index) => {
-      const bar = Utils.$(`#${barId}`);
-      if (bar) {
-        bar.classList.remove(`hamburger-animation${index + 1}`);
+    bars.forEach(bar => {
+      const element = Utils.$(`#${bar.id}`);
+      if (element) {
+        element.classList.remove(bar.class);
       }
     });
   },
