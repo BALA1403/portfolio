@@ -1,34 +1,82 @@
 # Balaganesh's Portfolio
+
+[![Portfolio](https://img.shields.io/badge/Portfolio-Live-brightgreen)](https://bala1403.github.io/portfolio/)
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/BALA1403/portfolio)
+
 Welcome to my professional portfolio, where I showcase my journey as a passionate software developer and problem solver. With a focus on creating impactful projects, I bring a blend of technical expertise and creativity to every endeavor. Explore my projects and skills, all crafted to provide a seamless user experience across devices.
 
-## Screenshots
-HOW IT WORKS ON LAPTOP/PC LANDSCAPE:
+## 🚀 Live Demo
 
-![App Screenshot](src/screenshots/screenshot01.png)
+[View Live Portfolio](https://bala1403.github.io/portfolio/) | [Source Code](https://github.com/BALA1403/portfolio)
 
-![App Screenshot](src/screenshots/screenshot02.png)
+## 📱 Screenshots
 
-![App Screenshot](src/screenshots/screenshot03.png)
+### Desktop/Laptop View (Landscape)
 
-![App Screenshot](src/screenshots/screenshot04.png)
+![Portfolio Desktop Home](src/screenshots/screenshot01.png)
 
-HOW IT WORKS ON MOBILE VERTICAL:
 
-![App Screenshot](src/screenshots/screenshot_mobile01.jpg)
+![Portfolio Desktop Projects](src/screenshots/screenshot02.png)
 
-Key Features:
-1.Responsive Design: Optimized for both laptop and mobile devices, ensuring a smooth browsing experience regardless of screen size.
 
-2.Dark & Light Modes: Switch effortlessly between dark and light modes to suit your preference, offering a comfortable viewing experience in any environment.
+![Portfolio Desktop Skills](src/screenshots/screenshot03.png)
 
-3.Project Highlights: A curated selection of my most notable projects, complete with descriptions, tech stacks, and live demos.
 
-4.Contact & Social Links: Easy access to my LinkedIn, GitHub, and email for quick connections and collaboration.
+![Portfolio Desktop Contact](src/screenshots/screenshot04.png)
 
-## Skills
-- **Programming Languages Used**: HTML, CSS,JavaScript
-- **Tools**: Git, GitHub, Visual Studio Code
+### Mobile View (Portrait)
 
-## Contact Information
-- **Email**: bxlz143@gmail.com
-- **LinkedIn**: www.linkedin.com/in/balaganesh-sb
+![Portfolio Mobile Home](src/screenshots/screenshot_mobile01.jpg)
+
+![Portfolio Mobile Projects](src/screenshots/screenshot_mobile02.jpg)
+
+## ✨ Key Features
+
+1. **Responsive Design**: Fully optimized for desktop, tablet, and mobile devices, ensuring a smooth browsing experience across all screen sizes with modern CSS Grid and Flexbox layouts.
+
+2. **Dark & Light Mode Toggle**: Switch effortlessly between dark and light themes with a sleek toggle button, offering comfortable viewing in any lighting environment with smooth transitions.
+
+3. **Interactive Project Showcase**: A curated selection of my most notable projects, complete with detailed descriptions, technology stacks, live demo links, and GitHub repositories.
+
+4. **Smooth Animations**: Engaging CSS animations and transitions that enhance user experience without compromising performance.
+
+5. **Contact Integration**: Easy access to my professional profiles (LinkedIn, GitHub) and direct email contact with a functional contact form.
+
+6. **SEO Optimized**: Structured with semantic HTML and meta tags for better search engine visibility.
+
+## 🛠️ Technologies Used
+
+### Frontend
+- **HTML5**: Semantic markup and accessibility features
+- **CSS3**: Modern styling with Grid, Flexbox, and custom properties
+- **JavaScript (ES6+)**: Interactive functionality and DOM manipulation
+
+### Tools & Workflow
+- **Git & GitHub**: Version control and project hosting
+- **Visual Studio Code**: Primary development environment
+- **Responsive Design**: Mobile-first approach with breakpoints
+- **Cross-browser Testing**: Ensuring compatibility across modern browsers
+
+## 📂 Project Structure
+
+```
+portfolio/
+├── index.html
+├── css/
+│   ├── style.css
+│   └── responsive.css
+├── js/
+│   └── script.js
+├── src/
+│   ├── screenshots/
+│   └── assets/
+└── README.md
+```
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+---
+
+**Built with ❤️ by Balaganesh** | **Last Updated**: January 2025
