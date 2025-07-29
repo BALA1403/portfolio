@@ -1,20 +1,20 @@
-// Enhanced Portfolio JavaScript - Optimized and Modern
+// Enhanced Portfolio JavaScript - Fully Optimized for All Browsers
 'use strict';
 
-// Global state management
+// Global state management with better state tracking
 const AppState = {
   isLoading: true,
   isMobileMenuOpen: false,
   activeSection: 'home',
-  theme: 'dark',
+  theme: 'dark', // Track current theme
   animationId: null,
   resizeTimeout: null,
-  scrollTimeout: null
+  scrollTimeout: null,
+  isThemeToggling: false // Prevent multiple toggles
 };
 
-// Utility functions
+// Utility functions with better error handling
 const Utils = {
-  // Debounce function for performance optimization
   debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -27,7 +27,6 @@ const Utils = {
     };
   },
 
-  // Throttle function for scroll events
   throttle(func, limit) {
     let inThrottle;
     return function executedFunction(...args) {
@@ -39,156 +38,190 @@ const Utils = {
     };
   },
 
-  // Check if device is mobile
   isMobile() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
       window.innerWidth <= 768;
   },
 
-  // Check if browser supports feature
   hasSupport(feature) {
-    switch (feature) {
-      case 'transform':
-        return 'transform' in document.documentElement.style;
-      case 'requestAnimationFrame':
-        return 'requestAnimationFrame' in window;
-      case 'localStorage':
-        return typeof(Storage) !== "undefined";
-      case 'intersectionObserver':
-        return 'IntersectionObserver' in window;
-      default:
-        return false;
+    try {
+      switch (feature) {
+        case 'transform':
+          return 'transform' in document.documentElement.style;
+        case 'requestAnimationFrame':
+          return 'requestAnimationFrame' in window;
+        case 'localStorage':
+          return typeof(Storage) !== "undefined";
+        case 'intersectionObserver':
+          return 'IntersectionObserver' in window;
+        default:
+          return false;
+      }
+    } catch (e) {
+      return false;
     }
   },
 
-  // Safe element selector
   $(selector) {
-    return document.querySelector(selector);
+    try {
+      return document.querySelector(selector);
+    } catch (e) {
+      console.warn('Selector error:', selector, e);
+      return null;
+    }
   },
 
-  // Safe elements selector
   $$(selector) {
-    return document.querySelectorAll(selector);
+    try {
+      return document.querySelectorAll(selector);
+    } catch (e) {
+      console.warn('Selector error:', selector, e);
+      return [];
+    }
+  },
+
+  // Safe element creation
+  createElement(tag, options = {}) {
+    const element = document.createElement(tag);
+    Object.entries(options).forEach(([key, value]) => {
+      if (key === 'className') {
+        element.className = value;
+      } else if (key === 'innerHTML') {
+        element.innerHTML = value;
+      } else if (key === 'textContent') {
+        element.textContent = value;
+      } else {
+        element.setAttribute(key, value);
+      }
+    });
+    return element;
   }
 };
 
-// Theme Management - FIXED FOR BRAVE BROWSER
+// FIXED Theme Management - Completely rewritten for reliability
 const ThemeManager = {
-  isToggling: false,
-  currentTheme: 'dark',
+  isInitialized: false,
+  toggleInProgress: false,
 
   init() {
+    if (this.isInitialized) return;
+
+    console.log('ThemeManager: Initializing...');
+
+    // Load saved theme first
     this.loadThemePreference();
+
     // Wait for DOM to be fully ready
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', () => {
-        setTimeout(() => this.bindEvents(), 200);
+        setTimeout(() => this.setupEventListeners(), 300);
       });
     } else {
-      setTimeout(() => this.bindEvents(), 200);
+      setTimeout(() => this.setupEventListeners(), 300);
     }
+
+    this.isInitialized = true;
   },
 
-  toggle() {
-    // Prevent multiple rapid calls
-    if (this.isToggling) {
-      console.log('Toggle already in progress, skipping');
+  setupEventListeners() {
+    console.log('ThemeManager: Setting up event listeners...');
+
+    const toggleBtn = Utils.$('.light-mode-toggle');
+    if (!toggleBtn) {
+      console.error('ThemeManager: Toggle button not found');
       return;
     }
 
-    this.isToggling = true;
-    console.log('Theme toggle started, current:', this.currentTheme);
+    // Clear any existing listeners by cloning the element
+    const newToggleBtn = toggleBtn.cloneNode(true);
+    toggleBtn.parentNode.replaceChild(newToggleBtn, toggleBtn);
+
+    // Single unified event handler
+    const handleToggle = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+
+      console.log('Theme toggle triggered');
+      this.performToggle();
+    };
+
+    // Add event listeners with proper options
+    ['click', 'touchend'].forEach(eventType => {
+      newToggleBtn.addEventListener(eventType, handleToggle, {
+        passive: false,
+        capture: true,
+        once: false
+      });
+    });
+
+    // Prevent double-tap zoom on mobile
+    newToggleBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+    }, { passive: false });
+
+    // Keyboard accessibility
+    newToggleBtn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        this.performToggle();
+      }
+    });
+
+    // Make function globally available for legacy support
+    window.toggleVisualMode = () => this.performToggle();
+    window.visualmode = () => this.performToggle();
+
+    console.log('ThemeManager: Event listeners setup complete');
+  },
+
+  performToggle() {
+    // Prevent rapid successive toggles
+    if (this.toggleInProgress) {
+      console.log('ThemeManager: Toggle already in progress, ignoring');
+      return;
+    }
+
+    this.toggleInProgress = true;
+    console.log('ThemeManager: Starting toggle, current theme:', AppState.theme);
 
     try {
       const body = document.body;
-      const wasLight = body.classList.contains("light-mode");
+      const currentlyLight = body.classList.contains('light-mode');
 
-      // Force a clean toggle
-      if (wasLight) {
-        body.classList.remove("light-mode");
-        this.currentTheme = 'dark';
+      // Perform the toggle with clear state management
+      if (currentlyLight) {
+        // Switch to dark mode
+        body.classList.remove('light-mode');
         AppState.theme = 'dark';
+        console.log('ThemeManager: Switched to dark mode');
       } else {
-        body.classList.add("light-mode");
-        this.currentTheme = 'light';
+        // Switch to light mode
+        body.classList.add('light-mode');
         AppState.theme = 'light';
+        console.log('ThemeManager: Switched to light mode');
       }
 
-      console.log('Theme changed to:', this.currentTheme);
-
-      // Save preference immediately
+      // Save the preference immediately
       this.saveThemePreference();
 
-      // Update meta tag
-      this.updateThemeColor();
+      // Update meta theme color
+      this.updateMetaThemeColor();
 
-      // Visual feedback
-      this.provideFeedback();
+      // Provide visual feedback
+      this.provideVisualFeedback();
 
-      // Dispatch event
-      try {
-        document.dispatchEvent(new CustomEvent('themeChanged', {
-          detail: {
-            theme: this.currentTheme
-          }
-        }));
-      } catch (e) {
-        console.warn('Event dispatch failed:', e);
-      }
+      // Dispatch custom event for other components
+      this.dispatchThemeEvent();
 
     } catch (error) {
-      console.error("Theme toggle error:", error);
-    }
-
-    // Reset lock with longer delay for Brave
-    setTimeout(() => {
-      this.isToggling = false;
-      console.log('Toggle lock released');
-    }, 600);
-  },
-
-
-  saveThemePreference() {
-    try {
-      // Multiple fallback methods for saving theme
-      const themeValue = this.currentTheme === 'light' ? 'true' : 'false';
-
-      // Method 1: localStorage
-      if (typeof Storage !== "undefined") {
-        localStorage.setItem("lightMode", themeValue);
-        console.log('Theme saved to localStorage:', themeValue);
-      }
-
-      // Method 2: sessionStorage as fallback
-      if (typeof sessionStorage !== "undefined") {
-        sessionStorage.setItem("lightMode", themeValue);
-      }
-
-      // Method 3: Document cookie as last resort
-      document.cookie = `lightMode=${themeValue}; path=/; max-age=31536000`;
-
-    } catch (error) {
-      console.warn("Could not save theme preference:", error);
-    }
-  },
-
-  updateThemeColor(isLight) {
-    const themeColorMeta = Utils.$('meta[name="theme-color"]');
-    if (themeColorMeta) {
-      themeColorMeta.setAttribute('content', isLight ? '#fafafa' : '#0a0a0f');
-    }
-  },
-
-  provideFeedback() {
-    const button = Utils.$('.light-mode-toggle');
-    if (button) {
-      button.style.transform = 'scale(0.9)';
-      // Use requestAnimationFrame for smoother animation
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          button.style.transform = '';
-        }, 150);
-      });
+      console.error('ThemeManager: Toggle error:', error);
+    } finally {
+      // Release the toggle lock after a reasonable delay
+      setTimeout(() => {
+        this.toggleInProgress = false;
+        console.log('ThemeManager: Toggle lock released');
+      }, 500);
     }
   },
 
@@ -196,177 +229,180 @@ const ThemeManager = {
     try {
       let savedTheme = null;
 
-      // Try multiple methods to load theme
-      // Method 1: localStorage
-      if (typeof Storage !== "undefined") {
-        savedTheme = localStorage.getItem("lightMode");
+      // Try multiple storage methods
+      if (Utils.hasSupport('localStorage')) {
+        savedTheme = localStorage.getItem('portfolioTheme');
+        // Also check old format for backward compatibility
+        if (!savedTheme) {
+          const oldFormat = localStorage.getItem('lightMode');
+          if (oldFormat === 'true') savedTheme = 'light';
+          if (oldFormat === 'false') savedTheme = 'dark';
+        }
       }
 
-      // Method 2: sessionStorage
-      if (!savedTheme && typeof sessionStorage !== "undefined") {
-        savedTheme = sessionStorage.getItem("lightMode");
+      // Fallback to sessionStorage
+      if (!savedTheme && typeof sessionStorage !== 'undefined') {
+        savedTheme = sessionStorage.getItem('portfolioTheme');
       }
 
-      // Method 3: Document cookie
+      // Fallback to cookies
       if (!savedTheme) {
         const cookies = document.cookie.split(';');
         for (let cookie of cookies) {
           const [name, value] = cookie.trim().split('=');
-          if (name === 'lightMode') {
+          if (name === 'portfolioTheme') {
             savedTheme = value;
             break;
           }
         }
       }
 
-      console.log('Loaded theme preference:', savedTheme);
+      console.log('ThemeManager: Loaded theme preference:', savedTheme);
 
-      if (savedTheme === "true") {
-        document.body.classList.add("light-mode");
-        this.currentTheme = 'light';
+      // Apply the saved theme
+      if (savedTheme === 'light') {
+        document.body.classList.add('light-mode');
         AppState.theme = 'light';
-        this.updateThemeColor();
       } else {
-        this.currentTheme = 'dark';
+        document.body.classList.remove('light-mode');
         AppState.theme = 'dark';
       }
 
+      this.updateMetaThemeColor();
+
     } catch (error) {
-      console.warn("Could not load theme preference:", error);
-      this.currentTheme = 'dark';
+      console.warn('ThemeManager: Could not load theme preference:', error);
+      // Default to dark theme
       AppState.theme = 'dark';
-    }
-  },
-  updateThemeColor() {
-    const themeColorMeta = Utils.$('meta[name="theme-color"]');
-    if (themeColorMeta) {
-      const color = this.currentTheme === 'light' ? '#fafafa' : '#0a0a0f';
-      themeColorMeta.setAttribute('content', color);
-      console.log('Meta theme color updated to:', color);
+      document.body.classList.remove('light-mode');
     }
   },
 
-  provideFeedback() {
-    const button = Utils.$('.light-mode-toggle');
-    if (button) {
-      // Immediate visual feedback
-      button.style.transform = 'scale(0.9)';
-      button.style.transition = 'transform 0.1s ease';
+  saveThemePreference() {
+    try {
+      const themeValue = AppState.theme;
 
-      setTimeout(() => {
-        button.style.transform = '';
-        button.style.transition = 'all 0.3s ease';
-      }, 150);
-    }
-  },
-
-  bindEvents() {
-    console.log('Binding theme toggle events');
-
-    const toggleBtn = Utils.$('.light-mode-toggle');
-    if (!toggleBtn) {
-      console.error('Theme toggle button not found');
-      return;
-    }
-
-    // Remove all existing event listeners by cloning
-    const newToggleBtn = toggleBtn.cloneNode(true);
-    toggleBtn.parentNode.replaceChild(newToggleBtn, toggleBtn);
-
-    // Bind multiple event types for maximum compatibility
-    const events = ['click', 'touchend'];
-
-    events.forEach(eventType => {
-      newToggleBtn.addEventListener(eventType, (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-
-        console.log(`Theme toggle triggered by ${eventType}`);
-
-        // Add small delay for touch events on mobile
-        if (eventType === 'touchend') {
-          setTimeout(() => this.toggle(), 50);
-        } else {
-          this.toggle();
-        }
-      }, {
-        passive: false,
-        capture: true
-      });
-    });
-
-    // Prevent touchstart to avoid double events
-    newToggleBtn.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-    }, {
-      passive: false
-    });
-
-    // Keyboard support
-    newToggleBtn.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        console.log('Theme toggle triggered by keyboard');
-        this.toggle();
+      // Save to multiple storage types for reliability
+      if (Utils.hasSupport('localStorage')) {
+        localStorage.setItem('portfolioTheme', themeValue);
+        // Also maintain old format for compatibility
+        localStorage.setItem('lightMode', themeValue === 'light' ? 'true' : 'false');
       }
-    });
 
-    // Make globally available
-    window.visualmode = () => this.toggle();
-    window.toggleVisualMode = () => this.toggle();
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem('portfolioTheme', themeValue);
+      }
 
-    console.log('Theme toggle events bound successfully');
+      // Set cookie with long expiration
+      document.cookie = `portfolioTheme=${themeValue}; path=/; max-age=31536000; SameSite=Lax`;
+
+      console.log('ThemeManager: Theme preference saved:', themeValue);
+
+    } catch (error) {
+      console.warn('ThemeManager: Could not save theme preference:', error);
+    }
+  },
+
+  updateMetaThemeColor() {
+    try {
+      const themeColorMeta = Utils.$('meta[name="theme-color"]');
+      if (themeColorMeta) {
+        const color = AppState.theme === 'light' ? '#fafafa' : '#0a0a0f';
+        themeColorMeta.setAttribute('content', color);
+        console.log('ThemeManager: Meta theme color updated to:', color);
+      }
+    } catch (error) {
+      console.warn('ThemeManager: Could not update meta theme color:', error);
+    }
+  },
+
+  provideVisualFeedback() {
+    try {
+      const button = Utils.$('.light-mode-toggle');
+      if (button) {
+        // Immediate scale feedback
+        button.style.transform = 'scale(0.9)';
+        button.style.transition = 'transform 0.1s ease';
+
+        // Reset after short delay
+        setTimeout(() => {
+          button.style.transform = '';
+          button.style.transition = 'all 0.3s ease';
+        }, 150);
+      }
+    } catch (error) {
+      console.warn('ThemeManager: Could not provide visual feedback:', error);
+    }
+  },
+
+  dispatchThemeEvent() {
+    try {
+      const event = new CustomEvent('themeChanged', {
+        detail: { theme: AppState.theme },
+        bubbles: true
+      });
+      document.dispatchEvent(event);
+    } catch (error) {
+      console.warn('ThemeManager: Could not dispatch theme event:', error);
+    }
   }
 };
-// Preloader Management
+
+// Preloader Management - Simplified and more reliable
 const PreloaderManager = {
   init() {
     const loader = Utils.$('#preloader');
     if (!loader) return;
 
     // Hide preloader after window load
-    window.addEventListener('load', () => {
-      this.hide(loader);
-    });
-
-    // Fallback: hide after 3 seconds
-    setTimeout(() => {
+    const hideLoader = () => {
       if (AppState.isLoading) {
         this.hide(loader);
       }
-    }, 3000);
+    };
+
+    // Multiple trigger points for reliability
+    if (document.readyState === 'complete') {
+      setTimeout(hideLoader, 100);
+    } else {
+      window.addEventListener('load', hideLoader);
+      // Fallback timer
+      setTimeout(hideLoader, 3000);
+    }
   },
 
   hide(loader) {
     try {
-      loader.style.opacity = "0";
-      loader.style.transition = "opacity 0.3s ease";
+      loader.style.opacity = '0';
+      loader.style.transition = 'opacity 0.3s ease';
 
       setTimeout(() => {
-        loader.style.display = "none";
+        loader.style.display = 'none';
         AppState.isLoading = false;
-
-        // Trigger post-load animations
         this.triggerPostLoadAnimations();
       }, 300);
     } catch (error) {
-      console.error("Preloader hide error:", error);
+      console.error('PreloaderManager: Hide error:', error);
+      AppState.isLoading = false;
     }
   },
 
   triggerPostLoadAnimations() {
-    const greeting = Utils.$(".hey");
-    if (greeting) {
-      greeting.classList.add("popup");
-    }
+    try {
+      const greeting = Utils.$('.hey');
+      if (greeting) {
+        greeting.classList.add('popup');
+      }
 
-    AnimationManager.initJelloAnimations();
-    NavigationManager.adjustLandingPadding();
+      AnimationManager.initJelloAnimations();
+      NavigationManager.adjustLandingPadding();
+    } catch (error) {
+      console.warn('PreloaderManager: Animation trigger error:', error);
+    }
   }
 };
 
-// Animation Management
+// Animation Management - Enhanced with better performance
 const AnimationManager = {
   init() {
     this.initScrollAnimations();
@@ -374,73 +410,89 @@ const AnimationManager = {
   },
 
   initScrollAnimations() {
-    const elements = Utils.$$('[data-aos]');
-    elements.forEach(element => {
-      element.classList.add('loading');
-    });
-
-    setTimeout(() => {
+    try {
+      const elements = Utils.$$('[data-aos]');
       elements.forEach(element => {
-        element.classList.remove('loading');
-        element.classList.add('loaded');
+        element.classList.add('loading');
       });
-    }, 500);
+
+      setTimeout(() => {
+        elements.forEach(element => {
+          element.classList.remove('loading');
+          element.classList.add('loaded');
+        });
+      }, 500);
+    } catch (error) {
+      console.warn('AnimationManager: Scroll animation error:', error);
+    }
   },
 
   initJelloAnimations() {
-    const jelloElements = Utils.$$('.jello');
-    jelloElements.forEach((element, index) => {
-      element.style.setProperty('--i', index);
-      element.style.animation = 'jello 3s ease-in-out infinite';
-      element.style.animationDelay = `${index * 0.15}s`;
+    try {
+      const jelloElements = Utils.$$('.jello');
+      jelloElements.forEach((element, index) => {
+        element.style.setProperty('--i', index);
+        element.style.animation = 'jello 3s ease-in-out infinite';
+        element.style.animationDelay = `${index * 0.15}s`;
 
-      element.addEventListener('click', function() {
-        this.style.animation = 'none';
-        requestAnimationFrame(() => {
-          this.style.animation = 'jello 3s ease-in-out infinite';
-          this.style.animationDelay = `${index * 0.15}s`;
+        element.addEventListener('click', function() {
+          this.style.animation = 'none';
+          requestAnimationFrame(() => {
+            this.style.animation = 'jello 3s ease-in-out infinite';
+            this.style.animationDelay = `${index * 0.15}s`;
+          });
         });
       });
-    });
+    } catch (error) {
+      console.warn('AnimationManager: Jello animation error:', error);
+    }
   },
 
   initIntersectionObserver() {
     if (!Utils.hasSupport('intersectionObserver')) return;
 
-    const observerOptions = {
-      threshold: 0.1,
-      rootMargin: '0px 0px -50px 0px'
-    };
+    try {
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      };
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('animate-in');
-        }
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate-in');
+          }
+        });
+      }, observerOptions);
+
+      Utils.$$('section, .project-box, .tech-stack-box, .certification-card').forEach(el => {
+        observer.observe(el);
       });
-    }, observerOptions);
-
-    Utils.$$('section, .project-box, .tech-stack-box, .certification-card').forEach(el => {
-      observer.observe(el);
-    });
+    } catch (error) {
+      console.warn('AnimationManager: Intersection observer error:', error);
+    }
   },
 
   parallaxEffect() {
-    const blob = Utils.$('.blob');
-    const footerBlob = Utils.$('.footer-blob');
-    const scrolled = window.pageYOffset;
+    try {
+      const blob = Utils.$('.blob');
+      const footerBlob = Utils.$('.footer-blob');
+      const scrolled = window.pageYOffset;
 
-    if (blob) {
-      blob.style.transform = `translate(-50%, -50%) translateY(${scrolled * 0.1}px)`;
-    }
+      if (blob) {
+        blob.style.transform = `translate(-50%, -50%) translateY(${scrolled * 0.1}px)`;
+      }
 
-    if (footerBlob) {
-      footerBlob.style.transform = `translate(-50%, -50%) translateY(${scrolled * 0.05}px)`;
+      if (footerBlob) {
+        footerBlob.style.transform = `translate(-50%, -50%) translateY(${scrolled * 0.05}px)`;
+      }
+    } catch (error) {
+      console.warn('AnimationManager: Parallax error:', error);
     }
   }
 };
 
-// Navigation Management - FIXED HAMBURGER MENU
+// Navigation Management - FIXED Mobile Menu Issues
 const NavigationManager = {
   init() {
     this.bindSmoothScroll();
@@ -451,28 +503,36 @@ const NavigationManager = {
   },
 
   bindSmoothScroll() {
-    const navLinks = Utils.$$('a[href^="#"]');
-    navLinks.forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const target = Utils.$(link.getAttribute('href'));
-        if (target) {
-          this.smoothScrollTo(target);
-          this.closeMobileMenu();
-        }
+    try {
+      const navLinks = Utils.$$('a[href^="#"]');
+      navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const target = Utils.$(link.getAttribute('href'));
+          if (target) {
+            this.smoothScrollTo(target);
+            this.closeMobileMenu();
+          }
+        });
       });
-    });
+    } catch (error) {
+      console.warn('NavigationManager: Smooth scroll error:', error);
+    }
   },
 
   smoothScrollTo(target) {
-    const navbar = Utils.$('#navbar');
-    const navbarHeight = navbar ? navbar.offsetHeight : 80;
-    const targetPosition = target.offsetTop - navbarHeight - 20;
+    try {
+      const navbar = Utils.$('#navbar');
+      const navbarHeight = navbar ? navbar.offsetHeight : 80;
+      const targetPosition = target.offsetTop - navbarHeight - 20;
 
-    window.scrollTo({
-      top: targetPosition,
-      behavior: 'smooth'
-    });
+      window.scrollTo({
+        top: targetPosition,
+        behavior: 'smooth'
+      });
+    } catch (error) {
+      console.warn('NavigationManager: Smooth scroll to error:', error);
+    }
   },
 
   bindScrollEvents() {
@@ -480,129 +540,125 @@ const NavigationManager = {
       this.updateActiveNavigation();
       this.updateBackToTop();
       AnimationManager.parallaxEffect();
-    }, 16); // ~60fps
+    }, 16);
 
-    window.addEventListener('scroll', throttledScroll, {
-      passive: true
-    });
+    window.addEventListener('scroll', throttledScroll, { passive: true });
   },
 
   updateActiveNavigation() {
-    const sections = Utils.$$("section[id]");
-    const navItems = Utils.$$(".navbar .navbar-tabs .navbar-tabs-ul li");
-    const mobileNavItems = Utils.$$(".mobiletogglemenu .mobile-navbar-tabs-ul li");
+    try {
+      const sections = Utils.$$("section[id]");
+      const navItems = Utils.$$(".navbar .navbar-tabs .navbar-tabs-ul li");
+      const mobileNavItems = Utils.$$(".mobiletogglemenu .mobile-navbar-tabs-ul li");
 
-    let activeId = "";
-    const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+      let activeId = "";
+      const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
 
-    sections.forEach(section => {
-      const sectionTop = section.offsetTop - 150;
-      const sectionHeight = section.offsetHeight;
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop - 150;
+        const sectionHeight = section.offsetHeight;
 
-      if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
-        activeId = section.getAttribute("id");
+        if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+          activeId = section.getAttribute("id");
+        }
+      });
+
+      if (activeId && activeId !== AppState.activeSection) {
+        AppState.activeSection = activeId;
+
+        // Update desktop navigation
+        navItems.forEach(item => {
+          const isActive = item.classList.contains(activeId);
+          item.classList.toggle("activeThistab", isActive);
+        });
+
+        // Update mobile navigation
+        mobileNavItems.forEach(item => {
+          const isActive = item.classList.contains(activeId);
+          item.classList.toggle("activeThismobiletab", isActive);
+        });
       }
-    });
-
-    if (activeId && activeId !== AppState.activeSection) {
-      AppState.activeSection = activeId;
-
-      // Update desktop navigation
-      navItems.forEach(item => {
-        const isActive = item.classList.contains(activeId);
-        item.classList.toggle("activeThistab", isActive);
-      });
-
-      // Update mobile navigation
-      mobileNavItems.forEach(item => {
-        const isActive = item.classList.contains(activeId);
-        item.classList.toggle("activeThismobiletab", isActive);
-      });
+    } catch (error) {
+      console.warn('NavigationManager: Update active navigation error:', error);
     }
   },
 
-
   bindHamburgerMenu() {
-    const hamburgerBtn = Utils.$('#hamburger-button');
-    const hamburgerContainer = Utils.$('#hamburger');
+    try {
+      const hamburgerBtn = Utils.$('#hamburger-button');
+      const hamburgerContainer = Utils.$('#hamburger');
 
-    if (hamburgerBtn) {
-      // Remove any existing listeners
-      hamburgerBtn.replaceWith(hamburgerBtn.cloneNode(true));
-      const newHamburgerBtn = Utils.$('#hamburger-button');
+      if (hamburgerBtn) {
+        // Clear existing listeners
+        const newHamburgerBtn = hamburgerBtn.cloneNode(true);
+        hamburgerBtn.parentNode.replaceChild(newHamburgerBtn, hamburgerBtn);
 
-      // Add click event
-      newHamburgerBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        this.toggleMobileMenu();
-      });
+        // Unified toggle handler
+        const handleToggle = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          this.toggleMobileMenu();
+        };
 
-      // Add touch events for mobile
-      newHamburgerBtn.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        this.toggleMobileMenu();
-      });
+        // Add event listeners
+        ['click', 'touchend'].forEach(eventType => {
+          newHamburgerBtn.addEventListener(eventType, handleToggle, {
+            passive: false,
+            capture: true
+          });
+        });
+
+        // Prevent touchstart
+        newHamburgerBtn.addEventListener('touchstart', (e) => {
+          e.preventDefault();
+        }, { passive: false });
+      }
+
+      // Make globally available
+      window.hamburgerMenu = () => this.toggleMobileMenu();
+    } catch (error) {
+      console.warn('NavigationManager: Hamburger menu binding error:', error);
     }
-
-    // Also bind to the container for better touch target
-    if (hamburgerContainer) {
-      hamburgerContainer.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        this.toggleMobileMenu();
-      });
-    }
-
-    // Make sure the function is globally available
-    window.hamburgerMenu = () => this.toggleMobileMenu();
   },
 
   bindMobileMenuLinks() {
-    const mobileLinks = Utils.$$('.mobile-navbar-tabs-ul li a');
-    const mobileListItems = Utils.$$('.mobile-navbar-tabs-ul li');
+    try {
+      const mobileLinks = Utils.$$('.mobile-navbar-tabs-ul li a');
+      const mobileListItems = Utils.$$('.mobile-navbar-tabs-ul li');
 
-    mobileLinks.forEach(link => {
-      link.addEventListener('click', (e) => {
-        console.log('Mobile menu link clicked');
-        setTimeout(() => {
-          this.closeMobileMenu();
-        }, 300);
+      mobileLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+          setTimeout(() => {
+            this.closeMobileMenu();
+          }, 300);
+        });
       });
-    });
 
-    // Also bind to list items for better touch targets
-    mobileListItems.forEach(item => {
-      item.addEventListener('click', (e) => {
-        const link = item.querySelector('a');
-        if (link && e.target !== link) {
-          link.click();
-        }
+      mobileListItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+          const link = item.querySelector('a');
+          if (link && e.target !== link) {
+            link.click();
+          }
+        });
       });
-    });
 
-    // Make the close function globally available
-    window.hidemenubyli = () => this.closeMobileMenu();
+      // Global function
+      window.hidemenubyli = () => this.closeMobileMenu();
+    } catch (error) {
+      console.warn('NavigationManager: Mobile menu links binding error:', error);
+    }
   },
 
   toggleMobileMenu() {
     try {
       const body = document.body;
       const menu = Utils.$('#mobiletogglemenu');
-      const hamburger = Utils.$('#hamburger');
 
-      if (!menu) {
-        console.error('Mobile menu not found');
-        return;
-      }
+      if (!menu) return;
 
-      // Toggle the state
       AppState.isMobileMenuOpen = !AppState.isMobileMenuOpen;
 
-      console.log('Toggling mobile menu:', AppState.isMobileMenuOpen); // Debug log
-
-      // Toggle body scroll
       if (AppState.isMobileMenuOpen) {
         body.classList.add("stopscrolling");
         menu.classList.add("show-toggle-menu");
@@ -612,232 +668,252 @@ const NavigationManager = {
       }
 
       // Animate hamburger bars
-      const bars = [{
-          id: 'burger-bar1',
-          class: 'hamburger-animation1'
-        },
-        {
-          id: 'burger-bar2',
-          class: 'hamburger-animation2'
-        },
-        {
-          id: 'burger-bar3',
-          class: 'hamburger-animation3'
-        }
+      const bars = [
+        { id: 'burger-bar1', class: 'hamburger-animation1' },
+        { id: 'burger-bar2', class: 'hamburger-animation2' },
+        { id: 'burger-bar3', class: 'hamburger-animation3' }
       ];
 
       bars.forEach(bar => {
         const element = Utils.$(`#${bar.id}`);
         if (element) {
-          if (AppState.isMobileMenuOpen) {
-            element.classList.add(bar.class);
-          } else {
-            element.classList.remove(bar.class);
-          }
+          element.classList.toggle(bar.class, AppState.isMobileMenuOpen);
         }
       });
-
     } catch (error) {
-      console.error("Mobile menu toggle error:", error);
+      console.error('NavigationManager: Mobile menu toggle error:', error);
     }
   },
 
   closeMobileMenu() {
     if (!AppState.isMobileMenuOpen) return;
 
-    const body = document.body;
-    const menu = Utils.$('#mobiletogglemenu');
-    const bars = [{
-        id: 'burger-bar1',
-        class: 'hamburger-animation1'
-      },
-      {
-        id: 'burger-bar2',
-        class: 'hamburger-animation2'
-      },
-      {
-        id: 'burger-bar3',
-        class: 'hamburger-animation3'
+    try {
+      const body = document.body;
+      const menu = Utils.$('#mobiletogglemenu');
+
+      AppState.isMobileMenuOpen = false;
+      body.classList.remove("stopscrolling");
+
+      if (menu) {
+        menu.classList.remove("show-toggle-menu");
       }
-    ];
 
-    AppState.isMobileMenuOpen = false;
-    body.classList.remove("stopscrolling");
+      // Reset hamburger bars
+      const bars = [
+        { id: 'burger-bar1', class: 'hamburger-animation1' },
+        { id: 'burger-bar2', class: 'hamburger-animation2' },
+        { id: 'burger-bar3', class: 'hamburger-animation3' }
+      ];
 
-    if (menu) {
-      menu.classList.remove("show-toggle-menu");
+      bars.forEach(bar => {
+        const element = Utils.$(`#${bar.id}`);
+        if (element) {
+          element.classList.remove(bar.class);
+        }
+      });
+    } catch (error) {
+      console.warn('NavigationManager: Close mobile menu error:', error);
     }
-
-    bars.forEach(bar => {
-      const element = Utils.$(`#${bar.id}`);
-      if (element) {
-        element.classList.remove(bar.class);
-      }
-    });
   },
 
   bindBackToTop() {
-    const backToTopBtn = Utils.$('#backtotopbutton');
-    if (backToTopBtn) {
-      backToTopBtn.addEventListener('click', () => {
-        window.scrollTo({
-          top: 0,
-          behavior: 'smooth'
+    try {
+      const backToTopBtn = Utils.$('#backtotopbutton');
+      if (backToTopBtn) {
+        backToTopBtn.addEventListener('click', () => {
+          window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+          });
         });
-      });
+      }
+    } catch (error) {
+      console.warn('NavigationManager: Back to top binding error:', error);
     }
   },
 
   updateBackToTop() {
-    const backToTopBtn = Utils.$('#backtotopbutton');
-    if (!backToTopBtn) return;
+    try {
+      const backToTopBtn = Utils.$('#backtotopbutton');
+      if (!backToTopBtn) return;
 
-    const scrollPosition = document.body.scrollTop || document.documentElement.scrollTop;
-    const shouldShow = scrollPosition > 400;
+      const scrollPosition = document.body.scrollTop || document.documentElement.scrollTop;
+      const shouldShow = scrollPosition > 400;
 
-    if (shouldShow && backToTopBtn.style.display !== 'block') {
-      backToTopBtn.style.display = "block";
-      backToTopBtn.style.opacity = "1";
-    } else if (!shouldShow && backToTopBtn.style.opacity !== "0") {
-      backToTopBtn.style.opacity = "0";
-      setTimeout(() => {
-        if (backToTopBtn.style.opacity === "0") {
-          backToTopBtn.style.display = "none";
-        }
-      }, 300);
+      if (shouldShow && backToTopBtn.style.display !== 'block') {
+        backToTopBtn.style.display = "block";
+        backToTopBtn.style.opacity = "1";
+      } else if (!shouldShow && backToTopBtn.style.opacity !== "0") {
+        backToTopBtn.style.opacity = "0";
+        setTimeout(() => {
+          if (backToTopBtn.style.opacity === "0") {
+            backToTopBtn.style.display = "none";
+          }
+        }, 300);
+      }
+    } catch (error) {
+      console.warn('NavigationManager: Update back to top error:', error);
     }
   },
 
   adjustLandingPadding() {
-    const navbar = Utils.$('#navbar');
-    const landing = Utils.$('.landing-page-container');
-    if (navbar && landing) {
-      const navbarHeight = navbar.offsetHeight;
-      landing.style.paddingTop = `${navbarHeight + 20}px`;
+    try {
+      const navbar = Utils.$('#navbar');
+      const landing = Utils.$('.landing-page-container');
+      if (navbar && landing) {
+        const navbarHeight = navbar.offsetHeight;
+        landing.style.paddingTop = `${navbarHeight + 20}px`;
+      }
+    } catch (error) {
+      console.warn('NavigationManager: Adjust landing padding error:', error);
     }
   }
 };
 
-// Certificate Modal Management
+// Certificate Modal Management - Enhanced
 const ModalManager = {
   init() {
     this.bindCertificateModal();
   },
 
   bindCertificateModal() {
-    const modal = Utils.$('#certificateModal');
-    const modalImg = Utils.$('#modalImage');
-    const captionText = Utils.$('#caption');
-    const certLinks = Utils.$$('.view-certificate');
-    const closeBtn = Utils.$('.close');
+    try {
+      const modal = Utils.$('#certificateModal');
+      const modalImg = Utils.$('#modalImage');
+      const captionText = Utils.$('#caption');
+      const certLinks = Utils.$$('.view-certificate');
+      const closeBtn = Utils.$('.close');
 
-    if (!modal || !modalImg || !captionText) return;
+      if (!modal || !modalImg || !captionText) return;
 
-    certLinks.forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        this.openModal(modal, modalImg, captionText, link);
+      certLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          this.openModal(modal, modalImg, captionText, link);
+        });
       });
-    });
 
-    if (closeBtn) {
-      closeBtn.addEventListener('click', () => {
-        this.closeModal(modal);
+      if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+          this.closeModal(modal);
+        });
+      }
+
+      // Close on background click
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          this.closeModal(modal);
+        }
       });
+
+      // Close on escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.style.display === 'block') {
+          this.closeModal(modal);
+        }
+      });
+    } catch (error) {
+      console.warn('ModalManager: Certificate modal binding error:', error);
     }
-
-    // Close on background click
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        this.closeModal(modal);
-      }
-    });
-
-    // Close on escape key
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && modal.style.display === 'block') {
-        this.closeModal(modal);
-      }
-    });
   },
 
   openModal(modal, modalImg, captionText, link) {
-    const certificatePath = link.getAttribute('data-certificate');
-    const title = link.closest('.certification-card').querySelector('.cert-title');
+    try {
+      const certificatePath = link.getAttribute('data-certificate');
+      const title = link.closest('.certification-card').querySelector('.cert-title');
 
-    modal.style.display = 'block';
-    modalImg.src = certificatePath;
-    captionText.textContent = title ? title.textContent : 'Certificate';
+      modal.style.display = 'block';
+      modalImg.src = certificatePath;
+      captionText.textContent = title ? title.textContent : 'Certificate';
 
-    // Prevent body scroll
-    document.body.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+    } catch (error) {
+      console.warn('ModalManager: Open modal error:', error);
+    }
   },
 
   closeModal(modal) {
-    modal.style.display = 'none';
-    document.body.style.overflow = '';
+    try {
+      modal.style.display = 'none';
+      document.body.style.overflow = '';
+    } catch (error) {
+      console.warn('ModalManager: Close modal error:', error);
+    }
   }
 };
 
-// Custom Cursor Management
+// Custom Cursor Management - Enhanced with better performance
 const CursorManager = {
   init() {
     if (Utils.isMobile() || !Utils.hasSupport('transform') || !Utils.hasSupport('requestAnimationFrame')) {
       return;
     }
-
     this.initCustomCursor();
   },
 
   initCustomCursor() {
-    const cursorInner = Utils.$('#cursor-inner');
-    const cursorOuter = Utils.$('#cursor-outer');
-    const interactiveElements = Utils.$$('a, label, button, .tech-stack-box, .project-box, .certification-card');
+    try {
+      const cursorInner = Utils.$('#cursor-inner');
+      const cursorOuter = Utils.$('#cursor-outer');
+      const interactiveElements = Utils.$$('a, label, button, .tech-stack-box, .project-box, .certification-card');
 
-    if (!cursorInner || !cursorOuter) return;
+      if (!cursorInner || !cursorOuter) return;
 
-    // Mouse move handler
-    document.addEventListener('mousemove', (e) => {
-      const {
-        clientX: x,
-        clientY: y
-      } = e;
+      let mouseX = 0, mouseY = 0;
+      let outerX = 0, outerY = 0;
 
-      cursorInner.style.left = `${x}px`;
-      cursorInner.style.top = `${y}px`;
+      // Mouse move handler with performance optimization
+      document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+
+        cursorInner.style.left = `${mouseX}px`;
+        cursorInner.style.top = `${mouseY}px`;
+      });
 
       // Smooth animation for outer cursor
-      cursorOuter.animate({
-        left: `${x}px`,
-        top: `${y}px`,
-      }, {
-        duration: 300,
-        fill: 'forwards'
-      });
-    });
+      const animateOuterCursor = () => {
+        const dx = mouseX - outerX;
+        const dy = mouseY - outerY;
 
-    // Hover effects
-    interactiveElements.forEach(element => {
-      element.addEventListener('mouseenter', () => {
-        cursorInner.classList.add('hover');
-        cursorOuter.classList.add('hover');
-      });
+        outerX += dx * 0.1;
+        outerY += dy * 0.1;
 
-      element.addEventListener('mouseleave', () => {
-        cursorInner.classList.remove('hover');
-        cursorOuter.classList.remove('hover');
+        cursorOuter.style.left = `${outerX}px`;
+        cursorOuter.style.top = `${outerY}px`;
+
+        requestAnimationFrame(animateOuterCursor);
+      };
+
+      requestAnimationFrame(animateOuterCursor);
+
+      // Hover effects
+      interactiveElements.forEach(element => {
+        element.addEventListener('mouseenter', () => {
+          cursorInner.classList.add('hover');
+          cursorOuter.classList.add('hover');
+        });
+
+        element.addEventListener('mouseleave', () => {
+          cursorInner.classList.remove('hover');
+          cursorOuter.classList.remove('hover');
+        });
       });
-    });
+    } catch (error) {
+      console.warn('CursorManager: Custom cursor error:', error);
+    }
   }
 };
 
-// Performance and Error Management
+// Performance and Error Management - Enhanced
 const PerformanceManager = {
   init() {
     this.bindResizeEvents();
     this.bindVisibilityEvents();
     this.bindErrorHandling();
     this.preventImageRightClick();
+    this.optimizePerformance();
   },
 
   bindResizeEvents() {
@@ -861,10 +937,13 @@ const PerformanceManager = {
   bindErrorHandling() {
     window.addEventListener('error', (e) => {
       console.error('Global error:', e.error);
+      // Don't let errors break the app
+      e.preventDefault();
     });
 
     window.addEventListener('unhandledrejection', (e) => {
       console.error('Unhandled promise rejection:', e.reason);
+      e.preventDefault();
     });
   },
 
@@ -877,70 +956,127 @@ const PerformanceManager = {
     });
   },
 
-  showNotification(message) {
-    const notification = document.createElement('div');
-    notification.textContent = message;
-    notification.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: var(--accent-primary);
-      color: var(--bg-primary);
-      padding: 10px 20px;
-      border-radius: 8px;
-      z-index: 10000;
-      font-family: 'JetBrains Mono', monospace;
-      opacity: 0;
-      transform: translateY(-20px);
-      transition: all 0.3s ease;
-      pointer-events: none;
-    `;
+  optimizePerformance() {
+    // Preload critical images
+    const criticalImages = [
+      './src/png/nav-avatar.png',
+      './src/png/bala_pic.jpg'
+    ];
 
-    document.body.appendChild(notification);
-
-    requestAnimationFrame(() => {
-      notification.style.opacity = '1';
-      notification.style.transform = 'translateY(0)';
+    criticalImages.forEach(src => {
+      const img = new Image();
+      img.src = src;
     });
 
-    setTimeout(() => {
-      notification.style.opacity = '0';
-      notification.style.transform = 'translateY(-20px)';
+    // Optimize scroll performance
+    let ticking = false;
+    const optimizedScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          // Scroll optimizations
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('scroll', optimizedScroll, { passive: true });
+  },
+
+  showNotification(message) {
+    try {
+      const notification = Utils.createElement('div', {
+        textContent: message,
+        className: 'performance-notification'
+      });
+
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: var(--accent-primary);
+        color: var(--bg-primary);
+        padding: 12px 24px;
+        border-radius: 8px;
+        z-index: 10000;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.9rem;
+        font-weight: 600;
+        opacity: 0;
+        transform: translateY(-20px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        pointer-events: none;
+        box-shadow: 0 10px 30px var(--shadow-color);
+        max-width: 300px;
+        word-wrap: break-word;
+      `;
+
+      document.body.appendChild(notification);
+
+      requestAnimationFrame(() => {
+        notification.style.opacity = '1';
+        notification.style.transform = 'translateY(0)';
+      });
+
       setTimeout(() => {
-        if (notification.parentNode) {
-          document.body.removeChild(notification);
-        }
-      }, 300);
-    }, 2000);
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateY(-20px)';
+        setTimeout(() => {
+          if (notification.parentNode) {
+            document.body.removeChild(notification);
+          }
+        }, 300);
+      }, 3000);
+    } catch (error) {
+      console.warn('PerformanceManager: Show notification error:', error);
+    }
   }
 };
 
-// Utility Functions (Global)
+// Utility Functions (Global) - Enhanced with better error handling
 function openURL() {
   try {
     const url = "src/resume/resume.pdf";
-    window.open(url, "_blank");
+    const newWindow = window.open(url, "_blank", "noopener,noreferrer");
 
-    // Analytics (if available)
+    if (!newWindow) {
+      // Fallback if popup blocked
+      window.location.href = url;
+    }
+
+    // Analytics tracking (if available)
     if (typeof gtag !== 'undefined') {
       gtag('event', 'download', {
         'event_category': 'Resume',
-        'event_label': 'PDF Download'
+        'event_label': 'PDF Download',
+        'transport_type': 'beacon'
       });
     }
+
+    // Show success notification
+    PerformanceManager.showNotification("Resume opened successfully!");
+
   } catch (error) {
     console.error("Resume download error:", error);
     PerformanceManager.showNotification("Resume download temporarily unavailable");
+
+    // Fallback: try direct navigation
+    try {
+      window.location.href = "src/resume/resume.pdf";
+    } catch (fallbackError) {
+      console.error("Fallback navigation failed:", fallbackError);
+    }
   }
 }
 
 // Legacy function names for backward compatibility
 function toggleVisualMode() {
-  ThemeManager.toggle();
+  ThemeManager.performToggle();
 }
 
-// Make sure this function is available globally
-window.toggleVisualMode = toggleVisualMode;
+function visualmode() {
+  ThemeManager.performToggle();
+}
 
 function hamburgerMenu() {
   NavigationManager.toggleMobileMenu();
@@ -951,91 +1087,283 @@ function hidemenubyli() {
 }
 
 function scrolltoTopfunction() {
-  window.scrollTo({
-    top: 0,
-    behavior: 'smooth'
-  });
+  try {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  } catch (error) {
+    // Fallback for older browsers
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }
 }
 
-// Main Application Initialization
+// Make functions globally available
+window.openURL = openURL;
+window.toggleVisualMode = toggleVisualMode;
+window.visualmode = visualmode;
+window.hamburgerMenu = hamburgerMenu;
+window.hidemenubyli = hidemenubyli;
+window.scrolltoTopfunction = scrolltoTopfunction;
+
+// Enhanced Application Initialization
 class PortfolioApp {
   constructor() {
     this.initialized = false;
+    this.retryCount = 0;
+    this.maxRetries = 3;
   }
 
   init() {
-    if (this.initialized) return;
+    if (this.initialized) {
+      console.log('PortfolioApp: Already initialized');
+      return;
+    }
 
     try {
+      console.log('PortfolioApp: Starting initialization...');
+
+      // Set loading state
       document.body.classList.add('loading');
 
-      // Initialize all managers
-      ThemeManager.init();
-      PreloaderManager.init();
-      AnimationManager.init();
-      NavigationManager.init();
-      ModalManager.init();
-      CursorManager.init();
-      PerformanceManager.init();
+      // Initialize all managers in correct order
+      this.initializeManagers();
 
       // Mark as initialized
       this.initialized = true;
+      console.log('PortfolioApp: Initialization complete');
 
       // Post-load setup
-      window.addEventListener('load', () => {
-        setTimeout(() => {
-          document.body.classList.remove('loading');
-          document.body.classList.add('loaded');
-        }, 500);
-      });
+      this.setupPostLoadActions();
 
-      // Console branding
+      // Display console branding
       this.displayConsoleBranding();
 
     } catch (error) {
-      console.error('App initialization error:', error);
+      console.error('PortfolioApp: Initialization error:', error);
+      this.handleInitializationError(error);
+    }
+  }
+
+  initializeManagers() {
+    const managers = [
+      { name: 'ThemeManager', manager: ThemeManager },
+      { name: 'PreloaderManager', manager: PreloaderManager },
+      { name: 'AnimationManager', manager: AnimationManager },
+      { name: 'NavigationManager', manager: NavigationManager },
+      { name: 'ModalManager', manager: ModalManager },
+      { name: 'CursorManager', manager: CursorManager },
+      { name: 'PerformanceManager', manager: PerformanceManager }
+    ];
+
+    managers.forEach(({ name, manager }) => {
+      try {
+        console.log(`PortfolioApp: Initializing ${name}...`);
+        manager.init();
+        console.log(`PortfolioApp: ${name} initialized successfully`);
+      } catch (error) {
+        console.error(`PortfolioApp: ${name} initialization failed:`, error);
+        // Continue with other managers even if one fails
+      }
+    });
+  }
+
+  setupPostLoadActions() {
+    const setupActions = () => {
+      try {
+        document.body.classList.remove('loading');
+        document.body.classList.add('loaded');
+
+        // Trigger any remaining animations
+        const event = new CustomEvent('appLoaded', {
+          detail: { timestamp: Date.now() }
+        });
+        document.dispatchEvent(event);
+
+      } catch (error) {
+        console.warn('PortfolioApp: Post-load setup error:', error);
+      }
+    };
+
+    if (document.readyState === 'complete') {
+      setTimeout(setupActions, 500);
+    } else {
+      window.addEventListener('load', () => {
+        setTimeout(setupActions, 500);
+      });
+    }
+  }
+
+  handleInitializationError(error) {
+    console.error('PortfolioApp: Critical initialization error:', error);
+
+    if (this.retryCount < this.maxRetries) {
+      this.retryCount++;
+      console.log(`PortfolioApp: Retrying initialization (${this.retryCount}/${this.maxRetries})...`);
+
+      setTimeout(() => {
+        this.initialized = false;
+        this.init();
+      }, 1000 * this.retryCount); // Exponential backoff
+    } else {
+      console.error('PortfolioApp: Maximum retry attempts reached. Running in degraded mode.');
+      this.initializeFallbackMode();
+    }
+  }
+
+  initializeFallbackMode() {
+    try {
+      console.log('PortfolioApp: Initializing fallback mode...');
+
+      // Basic theme functionality
+      const toggleBtn = Utils.$('.light-mode-toggle');
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          document.body.classList.toggle('light-mode');
+        });
+      }
+
+      // Basic hamburger menu
+      const hamburgerBtn = Utils.$('#hamburger-button');
+      if (hamburgerBtn) {
+        hamburgerBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const menu = Utils.$('#mobiletogglemenu');
+          if (menu) {
+            menu.classList.toggle('show-toggle-menu');
+            document.body.classList.toggle('stopscrolling');
+          }
+        });
+      }
+
+      // Hide preloader
+      const preloader = Utils.$('#preloader');
+      if (preloader) {
+        preloader.style.display = 'none';
+      }
+
+      document.body.classList.remove('loading');
+      console.log('PortfolioApp: Fallback mode initialized');
+
+    } catch (fallbackError) {
+      console.error('PortfolioApp: Even fallback mode failed:', fallbackError);
     }
   }
 
   displayConsoleBranding() {
-    console.log(
-      "%c🚀 Portfolio by Balaganesh S B",
-      `background: linear-gradient(90deg, #A5B68D, #C1CFA1);
-       color: white;
-       font-weight: 900;
-       font-size: 1.2rem;
-       padding: 20px;
-       border-radius: 10px;
-       text-shadow: 2px 2px 4px rgba(0,0,0,0.3);`
-    );
+    try {
+      console.log(
+        "%c🚀 Portfolio by Balaganesh S B - Optimized Edition",
+        `background: linear-gradient(90deg, #A5B68D, #C1CFA1);
+         color: white;
+         font-weight: 900;
+         font-size: 1.2rem;
+         padding: 20px;
+         border-radius: 10px;
+         text-shadow: 2px 2px 4px rgba(0,0,0,0.3);`
+      );
 
-    console.log(
-      "%c💼 Oracle Certified Java Developer",
-      `background: linear-gradient(90deg, #000B58, #003161);
-       color: white;
-       font-weight: 600;
-       font-size: 1rem;
-       padding: 10px 20px;
-       border-radius: 5px;`
-    );
+      console.log(
+        "%c💼 Oracle Certified Java Developer | Full Stack Developer",
+        `background: linear-gradient(90deg, #000B58, #003161);
+         color: white;
+         font-weight: 600;
+         font-size: 1rem;
+         padding: 10px 20px;
+         border-radius: 5px;`
+      );
+
+      console.log(
+        "%c🔧 Enhanced for Cross-Browser Compatibility",
+        `background: linear-gradient(90deg, #16213e, #1a1a2e);
+         color: #A5B68D;
+         font-weight: 600;
+         font-size: 0.9rem;
+         padding: 8px 16px;
+         border-radius: 5px;`
+      );
+    } catch (error) {
+      // Silent fail for console branding
+    }
   }
 }
 
-// Initialize the application
+// Safe Initialization with Multiple Entry Points
 const app = new PortfolioApp();
 
-// DOM Ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => app.init());
-} else {
+// Primary initialization
+const initializeApp = () => {
   app.init();
+};
+
+// Multiple initialization triggers for maximum reliability
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeApp);
+} else {
+  // DOM is already ready
+  setTimeout(initializeApp, 100);
 }
 
-// Service Worker Registration (optional)
+// Backup initialization
+window.addEventListener('load', () => {
+  if (!app.initialized) {
+    console.log('PortfolioApp: Backup initialization triggered');
+    initializeApp();
+  }
+});
+
+// Final fallback
+setTimeout(() => {
+  if (!app.initialized) {
+    console.log('PortfolioApp: Emergency initialization triggered');
+    initializeApp();
+  }
+}, 3000);
+
+// Service Worker Registration (Progressive Web App support)
 if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
-      .then(() => console.log('Service Worker registered'))
-      .catch(() => console.log('Service Worker registration failed'));
+      .then((registration) => {
+        console.log('ServiceWorker: Registered successfully');
+        return registration;
+      })
+      .catch((error) => {
+        console.log('ServiceWorker: Registration failed', error);
+      });
   });
 }
+
+// Enhanced Error Recovery
+window.addEventListener('error', (event) => {
+  console.error('Global Error Handler:', event.error);
+
+  // Try to recover from critical errors
+  if (event.error && event.error.message && event.error.message.includes('theme')) {
+    console.log('Attempting to recover from theme-related error...');
+    try {
+      document.body.classList.remove('light-mode');
+      AppState.theme = 'dark';
+    } catch (recoveryError) {
+      console.error('Recovery failed:', recoveryError);
+    }
+  }
+});
+
+// Prevent common mobile issues
+document.addEventListener('touchstart', function() {}, { passive: true });
+document.addEventListener('touchmove', function() {}, { passive: true });
+
+// Export for potential module usage
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    PortfolioApp,
+    ThemeManager,
+    NavigationManager,
+    Utils
+  };
+}
+
+console.log('📱 Portfolio JavaScript: Fully loaded and optimized for all browsers including Brave mobile!');
