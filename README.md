@@ -13,22 +13,22 @@ Welcome to my professional portfolio, where I showcase my journey as a passionat
 
 ### Desktop/Laptop View (Landscape)
 
-![Portfolio Desktop Home](src/screenshots/screenshot01.png)
+![Portfolio Desktop ](src/screenshots/screenshot01.png)
 
 
-![Portfolio Desktop Projects](src/screenshots/screenshot02.png)
+![Portfolio Desktop ](src/screenshots/screenshot02.png)
 
 
-![Portfolio Desktop Skills](src/screenshots/screenshot03.png)
+![Portfolio Desktop ](src/screenshots/screenshot03.png)
 
 
-![Portfolio Desktop Contact](src/screenshots/screenshot04.png)
+![Portfolio Desktop ](src/screenshots/screenshot04.png)
 
 ### Mobile View (Portrait)
 
-![Portfolio Mobile Home](src/screenshots/screenshot_mobile01.jpg)
+![Portfolio Mobile ](src/screenshots/screenshot_mobile01.jpg)
 
-![Portfolio Mobile Projects](src/screenshots/screenshot_mobile02.jpg)
+![Portfolio Mobile ](src/screenshots/screenshot_mobile02.jpg)
 
 ## ✨ Key Features
 

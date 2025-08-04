@@ -1,20 +1,20 @@
-// Enhanced Portfolio JavaScript - Fully Optimized for All Browsers
+// Modern Portfolio JavaScript - Fixed Version
 'use strict';
 
-// Global state management with better state tracking
+// Application State Management
 const AppState = {
   isLoading: true,
   isMobileMenuOpen: false,
   activeSection: 'home',
-  theme: 'dark', // Track current theme
-  animationId: null,
-  resizeTimeout: null,
-  scrollTimeout: null,
-  isThemeToggling: false // Prevent multiple toggles
+  theme: 'dark',
+  isScrolling: false,
+  lastScrollY: 0,
+  animationFrameId: null
 };
 
-// Utility functions with better error handling
+// Utility Functions
 const Utils = {
+  // Debounce function for performance optimization
   debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -27,6 +27,7 @@ const Utils = {
     };
   },
 
+  // Throttle function for scroll events
   throttle(func, limit) {
     let inThrottle;
     return function executedFunction(...args) {
@@ -38,30 +39,7 @@ const Utils = {
     };
   },
 
-  isMobile() {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-      window.innerWidth <= 768;
-  },
-
-  hasSupport(feature) {
-    try {
-      switch (feature) {
-        case 'transform':
-          return 'transform' in document.documentElement.style;
-        case 'requestAnimationFrame':
-          return 'requestAnimationFrame' in window;
-        case 'localStorage':
-          return typeof(Storage) !== "undefined";
-        case 'intersectionObserver':
-          return 'IntersectionObserver' in window;
-        default:
-          return false;
-      }
-    } catch (e) {
-      return false;
-    }
-  },
-
+  // Safe element selection
   $(selector) {
     try {
       return document.querySelector(selector);
@@ -80,846 +58,730 @@ const Utils = {
     }
   },
 
-  // Safe element creation
-  createElement(tag, options = {}) {
-    const element = document.createElement(tag);
-    Object.entries(options).forEach(([key, value]) => {
-      if (key === 'className') {
-        element.className = value;
-      } else if (key === 'innerHTML') {
-        element.innerHTML = value;
-      } else if (key === 'textContent') {
-        element.textContent = value;
-      } else {
-        element.setAttribute(key, value);
+  // Check if device is mobile
+  isMobile() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+      window.innerWidth <= 768;
+  },
+
+  // Check feature support
+  supportsFeature(feature) {
+    try {
+      switch (feature) {
+        case 'transform':
+          return 'transform' in document.documentElement.style;
+        case 'requestAnimationFrame':
+          return 'requestAnimationFrame' in window;
+        case 'localStorage':
+          return typeof(Storage) !== "undefined";
+        case 'intersectionObserver':
+          return 'IntersectionObserver' in window;
+        default:
+          return false;
       }
+    } catch (e) {
+      return false;
+    }
+  },
+
+  // Smooth scroll to element
+  scrollToElement(element, offset = 80) {
+    if (!element) return;
+
+    const elementPosition = element.offsetTop - offset;
+    window.scrollTo({
+      top: elementPosition,
+      behavior: 'smooth'
     });
-    return element;
+  },
+
+  // Show notification
+  showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--accent-primary);
+      color: var(--bg-primary);
+      padding: 12px 24px;
+      border-radius: 8px;
+      z-index: 10000;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: all 0.3s ease;
+      max-width: 300px;
+      word-wrap: break-word;
+      box-shadow: 0 10px 30px var(--shadow-color);
+    `;
+
+    document.body.appendChild(notification);
+
+    requestAnimationFrame(() => {
+      notification.style.opacity = '1';
+      notification.style.transform = 'translateY(0)';
+    });
+
+    setTimeout(() => {
+      notification.style.opacity = '0';
+      notification.style.transform = 'translateY(-20px)';
+      setTimeout(() => {
+        if (notification.parentNode) {
+          document.body.removeChild(notification);
+        }
+      }, 300);
+    }, 3000);
   }
 };
 
-// FIXED Theme Management - Completely rewritten for reliability
+// Theme Management
 const ThemeManager = {
-  isInitialized: false,
-  toggleInProgress: false,
-
   init() {
-    if (this.isInitialized) return;
-
-    console.log('ThemeManager: Initializing...');
-
-    // Load saved theme first
-    this.loadThemePreference();
-
-    // Wait for DOM to be fully ready
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => {
-        setTimeout(() => this.setupEventListeners(), 300);
-      });
-    } else {
-      setTimeout(() => this.setupEventListeners(), 300);
-    }
-
-    this.isInitialized = true;
+    this.loadTheme();
+    this.bindEvents();
+    this.updateToggleStates();
   },
 
-  setupEventListeners() {
-    console.log('ThemeManager: Setting up event listeners...');
-
-    const toggleBtn = Utils.$('.light-mode-toggle');
-    if (!toggleBtn) {
-      console.error('ThemeManager: Toggle button not found');
-      return;
-    }
-
-    // Clear any existing listeners by cloning the element
-    const newToggleBtn = toggleBtn.cloneNode(true);
-    toggleBtn.parentNode.replaceChild(newToggleBtn, toggleBtn);
-
-    // Single unified event handler
-    const handleToggle = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      e.stopImmediatePropagation();
-
-      console.log('Theme toggle triggered');
-      this.performToggle();
-    };
-
-    // Add event listeners with proper options
-    ['click', 'touchend'].forEach(eventType => {
-      newToggleBtn.addEventListener(eventType, handleToggle, {
-        passive: false,
-        capture: true,
-        once: false
-      });
-    });
-
-    // Prevent double-tap zoom on mobile
-    newToggleBtn.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-    }, { passive: false });
-
-    // Keyboard accessibility
-    newToggleBtn.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        this.performToggle();
-      }
-    });
-
-    // Make function globally available for legacy support
-    window.toggleVisualMode = () => this.performToggle();
-    window.visualmode = () => this.performToggle();
-
-    console.log('ThemeManager: Event listeners setup complete');
-  },
-
-  performToggle() {
-    // Prevent rapid successive toggles
-    if (this.toggleInProgress) {
-      console.log('ThemeManager: Toggle already in progress, ignoring');
-      return;
-    }
-
-    this.toggleInProgress = true;
-    console.log('ThemeManager: Starting toggle, current theme:', AppState.theme);
-
+  loadTheme() {
     try {
-      const body = document.body;
-      const currentlyLight = body.classList.contains('light-mode');
-
-      // Perform the toggle with clear state management
-      if (currentlyLight) {
-        // Switch to dark mode
-        body.classList.remove('light-mode');
-        AppState.theme = 'dark';
-        console.log('ThemeManager: Switched to dark mode');
-      } else {
-        // Switch to light mode
-        body.classList.add('light-mode');
-        AppState.theme = 'light';
-        console.log('ThemeManager: Switched to light mode');
-      }
-
-      // Save the preference immediately
-      this.saveThemePreference();
-
-      // Update meta theme color
-      this.updateMetaThemeColor();
-
-      // Provide visual feedback
-      this.provideVisualFeedback();
-
-      // Dispatch custom event for other components
-      this.dispatchThemeEvent();
-
+      const savedTheme = localStorage.getItem('portfolioTheme') || 'dark';
+      this.setTheme(savedTheme);
     } catch (error) {
-      console.error('ThemeManager: Toggle error:', error);
-    } finally {
-      // Release the toggle lock after a reasonable delay
-      setTimeout(() => {
-        this.toggleInProgress = false;
-        console.log('ThemeManager: Toggle lock released');
-      }, 500);
+      console.warn('Could not load theme preference:', error);
+      this.setTheme('dark');
     }
   },
 
-  loadThemePreference() {
-    try {
-      let savedTheme = null;
+  setTheme(theme) {
+    AppState.theme = theme;
+    document.body.classList.toggle('light-theme', theme === 'light');
+    this.updateMetaThemeColor();
+    this.updateToggleStates();
 
-      // Try multiple storage methods
-      if (Utils.hasSupport('localStorage')) {
-        savedTheme = localStorage.getItem('portfolioTheme');
-        // Also check old format for backward compatibility
-        if (!savedTheme) {
-          const oldFormat = localStorage.getItem('lightMode');
-          if (oldFormat === 'true') savedTheme = 'light';
-          if (oldFormat === 'false') savedTheme = 'dark';
+    try {
+      localStorage.setItem('portfolioTheme', theme);
+    } catch (error) {
+      console.warn('Could not save theme preference:', error);
+    }
+  },
+
+  updateToggleStates() {
+    const allToggleButtons = Utils.$$('.theme-toggle');
+    allToggleButtons.forEach(toggle => {
+      const sunIcon = toggle.querySelector('.sun-icon');
+      const moonIcon = toggle.querySelector('.moon-icon');
+
+      if (sunIcon && moonIcon) {
+        if (AppState.theme === 'light') {
+          sunIcon.style.opacity = '1';
+          sunIcon.style.transform = 'rotate(0deg) scale(1)';
+          moonIcon.style.opacity = '0';
+          moonIcon.style.transform = 'rotate(-180deg) scale(0)';
+        } else {
+          sunIcon.style.opacity = '0';
+          sunIcon.style.transform = 'rotate(180deg) scale(0)';
+          moonIcon.style.opacity = '1';
+          moonIcon.style.transform = 'rotate(0deg) scale(1)';
         }
       }
-
-      // Fallback to sessionStorage
-      if (!savedTheme && typeof sessionStorage !== 'undefined') {
-        savedTheme = sessionStorage.getItem('portfolioTheme');
-      }
-
-      // Fallback to cookies
-      if (!savedTheme) {
-        const cookies = document.cookie.split(';');
-        for (let cookie of cookies) {
-          const [name, value] = cookie.trim().split('=');
-          if (name === 'portfolioTheme') {
-            savedTheme = value;
-            break;
-          }
-        }
-      }
-
-      console.log('ThemeManager: Loaded theme preference:', savedTheme);
-
-      // Apply the saved theme
-      if (savedTheme === 'light') {
-        document.body.classList.add('light-mode');
-        AppState.theme = 'light';
-      } else {
-        document.body.classList.remove('light-mode');
-        AppState.theme = 'dark';
-      }
-
-      this.updateMetaThemeColor();
-
-    } catch (error) {
-      console.warn('ThemeManager: Could not load theme preference:', error);
-      // Default to dark theme
-      AppState.theme = 'dark';
-      document.body.classList.remove('light-mode');
-    }
+    });
   },
 
-  saveThemePreference() {
-    try {
-      const themeValue = AppState.theme;
+  toggleTheme() {
+    const newTheme = AppState.theme === 'dark' ? 'light' : 'dark';
+    this.setTheme(newTheme);
 
-      // Save to multiple storage types for reliability
-      if (Utils.hasSupport('localStorage')) {
-        localStorage.setItem('portfolioTheme', themeValue);
-        // Also maintain old format for compatibility
-        localStorage.setItem('lightMode', themeValue === 'light' ? 'true' : 'false');
+    // Dispatch theme change event
+    document.dispatchEvent(new CustomEvent('themeChanged', {
+      detail: {
+        theme: newTheme
       }
-
-      if (typeof sessionStorage !== 'undefined') {
-        sessionStorage.setItem('portfolioTheme', themeValue);
-      }
-
-      // Set cookie with long expiration
-      document.cookie = `portfolioTheme=${themeValue}; path=/; max-age=31536000; SameSite=Lax`;
-
-      console.log('ThemeManager: Theme preference saved:', themeValue);
-
-    } catch (error) {
-      console.warn('ThemeManager: Could not save theme preference:', error);
-    }
+    }));
   },
 
   updateMetaThemeColor() {
-    try {
-      const themeColorMeta = Utils.$('meta[name="theme-color"]');
-      if (themeColorMeta) {
-        const color = AppState.theme === 'light' ? '#fafafa' : '#0a0a0f';
-        themeColorMeta.setAttribute('content', color);
-        console.log('ThemeManager: Meta theme color updated to:', color);
-      }
-    } catch (error) {
-      console.warn('ThemeManager: Could not update meta theme color:', error);
+    const themeColorMeta = Utils.$('meta[name="theme-color"]');
+    if (themeColorMeta) {
+      const color = AppState.theme === 'light' ? '#fafafa' : '#0a0a0f';
+      themeColorMeta.setAttribute('content', color);
     }
   },
 
-  provideVisualFeedback() {
-    try {
-      const button = Utils.$('.light-mode-toggle');
-      if (button) {
-        // Immediate scale feedback
-        button.style.transform = 'scale(0.9)';
-        button.style.transition = 'transform 0.1s ease';
-
-        // Reset after short delay
-        setTimeout(() => {
-          button.style.transform = '';
-          button.style.transition = 'all 0.3s ease';
-        }, 150);
-      }
-    } catch (error) {
-      console.warn('ThemeManager: Could not provide visual feedback:', error);
+  bindEvents() {
+  // Handle all theme toggles
+  document.addEventListener('click', (e) => {
+    const themeToggle = e.target.closest('.theme-toggle');
+    if (themeToggle) {
+      e.preventDefault();
+      this.toggleTheme();
     }
-  },
+  });
 
-  dispatchThemeEvent() {
-    try {
-      const event = new CustomEvent('themeChanged', {
-        detail: { theme: AppState.theme },
-        bubbles: true
-      });
-      document.dispatchEvent(event);
-    } catch (error) {
-      console.warn('ThemeManager: Could not dispatch theme event:', error);
+  // Keyboard accessibility
+  document.addEventListener('keydown', (e) => {
+    const themeToggle = document.activeElement.closest('.theme-toggle');
+    if (themeToggle && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      this.toggleTheme();
     }
-  }
+  });
+
+  // Sync both toggles when theme changes
+  document.addEventListener('themeChanged', () => {
+    this.updateToggleStates();
+  });
+}
 };
 
-// Preloader Management - Simplified and more reliable
+// Preloader Management
 const PreloaderManager = {
   init() {
-    const loader = Utils.$('#preloader');
-    if (!loader) return;
+    const preloader = Utils.$('#preloader');
+    if (!preloader) {
+      console.warn('Preloader element not found');
+      AppState.isLoading = false;
+      this.onPreloaderHidden();
+      return;
+    }
 
-    // Hide preloader after window load
-    const hideLoader = () => {
+    const hidePreloader = () => {
       if (AppState.isLoading) {
-        this.hide(loader);
+        this.hide(preloader);
       }
     };
 
-    // Multiple trigger points for reliability
     if (document.readyState === 'complete') {
-      setTimeout(hideLoader, 100);
+      setTimeout(hidePreloader, 500);
     } else {
-      window.addEventListener('load', hideLoader);
-      // Fallback timer
-      setTimeout(hideLoader, 3000);
+      window.addEventListener('load', hidePreloader);
+      // Fallback timer - CRITICAL: This ensures preloader always hides
+      setTimeout(hidePreloader, 3000);
     }
   },
 
-  hide(loader) {
-    try {
-      loader.style.opacity = '0';
-      loader.style.transition = 'opacity 0.3s ease';
+  hide(preloader) {
+    console.log('Hiding preloader...');
+    preloader.style.opacity = '0';
 
-      setTimeout(() => {
-        loader.style.display = 'none';
-        AppState.isLoading = false;
-        this.triggerPostLoadAnimations();
-      }, 300);
-    } catch (error) {
-      console.error('PreloaderManager: Hide error:', error);
+    setTimeout(() => {
+      preloader.style.display = 'none';
       AppState.isLoading = false;
-    }
+      this.onPreloaderHidden();
+      console.log('Preloader hidden successfully');
+    }, 500);
   },
 
-  triggerPostLoadAnimations() {
-    try {
-      const greeting = Utils.$('.hey');
-      if (greeting) {
-        greeting.classList.add('popup');
-      }
-
-      AnimationManager.initJelloAnimations();
-      NavigationManager.adjustLandingPadding();
-    } catch (error) {
-      console.warn('PreloaderManager: Animation trigger error:', error);
+  onPreloaderHidden() {
+    // Trigger greeting animation
+    const greeting = Utils.$('.greeting');
+    if (greeting) {
+      greeting.classList.add('animate');
     }
+
+    // Initialize jello animations
+    AnimationManager.initJelloAnimations();
+
+    // Adjust hero padding
+    NavigationManager.adjustHeroPadding();
   }
 };
 
-// Animation Management - Enhanced with better performance
+// Animation Management
 const AnimationManager = {
   init() {
     this.initScrollAnimations();
     this.initIntersectionObserver();
   },
 
-  initScrollAnimations() {
-    try {
-      const elements = Utils.$$('[data-aos]');
-      elements.forEach(element => {
-        element.classList.add('loading');
-      });
+  initJelloAnimations() {
+    const jelloElements = Utils.$$('.jello');
+    jelloElements.forEach((element, index) => {
+      element.style.setProperty('--i', index);
 
-      setTimeout(() => {
-        elements.forEach(element => {
-          element.classList.remove('loading');
-          element.classList.add('loaded');
+      element.addEventListener('click', function() {
+        this.style.animation = 'none';
+        requestAnimationFrame(() => {
+          this.style.animation = '';
         });
-      }, 500);
-    } catch (error) {
-      console.warn('AnimationManager: Scroll animation error:', error);
-    }
+      });
+    });
   },
 
-  initJelloAnimations() {
-    try {
-      const jelloElements = Utils.$$('.jello');
-      jelloElements.forEach((element, index) => {
-        element.style.setProperty('--i', index);
-        element.style.animation = 'jello 3s ease-in-out infinite';
-        element.style.animationDelay = `${index * 0.15}s`;
-
-        element.addEventListener('click', function() {
-          this.style.animation = 'none';
-          requestAnimationFrame(() => {
-            this.style.animation = 'jello 3s ease-in-out infinite';
-            this.style.animationDelay = `${index * 0.15}s`;
-          });
-        });
-      });
-    } catch (error) {
-      console.warn('AnimationManager: Jello animation error:', error);
-    }
+  initScrollAnimations() {
+    const elements = Utils.$$('[data-aos]');
+    elements.forEach(element => {
+      element.style.opacity = '0';
+      element.style.transform = 'translateY(30px)';
+      element.style.transition = 'all 0.6s ease';
+    });
   },
 
   initIntersectionObserver() {
-    if (!Utils.hasSupport('intersectionObserver')) return;
-
-    try {
-      const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-      };
-
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('animate-in');
-          }
-        });
-      }, observerOptions);
-
-      Utils.$$('section, .project-box, .tech-stack-box, .certification-card').forEach(el => {
-        observer.observe(el);
-      });
-    } catch (error) {
-      console.warn('AnimationManager: Intersection observer error:', error);
+    if (!Utils.supportsFeature('intersectionObserver')) {
+      // Fallback for browsers without IntersectionObserver
+      this.fallbackScrollAnimations();
+      return;
     }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    });
+
+    Utils.$$('[data-aos]').forEach(el => observer.observe(el));
+  },
+
+  fallbackScrollAnimations() {
+    const animateOnScroll = Utils.throttle(() => {
+      const elements = Utils.$$('[data-aos]');
+      elements.forEach(element => {
+        const elementTop = element.getBoundingClientRect().top;
+        const elementVisible = 150;
+
+        if (elementTop < window.innerHeight - elementVisible) {
+          element.style.opacity = '1';
+          element.style.transform = 'translateY(0)';
+        }
+      });
+    }, 100);
+
+    window.addEventListener('scroll', animateOnScroll, {
+      passive: true
+    });
+    animateOnScroll(); // Initial check
   },
 
   parallaxEffect() {
-    try {
-      const blob = Utils.$('.blob');
-      const footerBlob = Utils.$('.footer-blob');
-      const scrolled = window.pageYOffset;
+    if (Utils.isMobile()) return; // Skip parallax on mobile for performance
 
-      if (blob) {
-        blob.style.transform = `translate(-50%, -50%) translateY(${scrolled * 0.1}px)`;
-      }
+    const scrolled = window.pageYOffset;
+    const heroBackground = Utils.$('.hero-background');
+    const footerBlob = Utils.$('.footer-blob');
 
-      if (footerBlob) {
-        footerBlob.style.transform = `translate(-50%, -50%) translateY(${scrolled * 0.05}px)`;
-      }
-    } catch (error) {
-      console.warn('AnimationManager: Parallax error:', error);
+    if (heroBackground) {
+      heroBackground.style.transform = `translate(-50%, -50%) translateY(${scrolled * 0.1}px)`;
+    }
+
+    if (footerBlob) {
+      footerBlob.style.transform = `translate(-50%, -50%) translateY(${scrolled * 0.05}px)`;
     }
   }
 };
 
-// Navigation Management - FIXED Mobile Menu Issues
+// Navigation Management
 const NavigationManager = {
   init() {
     this.bindSmoothScroll();
     this.bindScrollEvents();
-    this.bindHamburgerMenu();
+    this.bindMobileMenu();
     this.bindBackToTop();
-    this.bindMobileMenuLinks();
   },
 
   bindSmoothScroll() {
-    try {
-      const navLinks = Utils.$$('a[href^="#"]');
-      navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-          e.preventDefault();
-          const target = Utils.$(link.getAttribute('href'));
-          if (target) {
-            this.smoothScrollTo(target);
-            this.closeMobileMenu();
-          }
-        });
+    // Desktop navigation
+    Utils.$$('.nav-link').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = link.getAttribute('href');
+        const target = Utils.$(targetId);
+        if (target) {
+          Utils.scrollToElement(target);
+          this.updateActiveNavigation(targetId.substring(1));
+        }
       });
-    } catch (error) {
-      console.warn('NavigationManager: Smooth scroll error:', error);
-    }
-  },
+    });
 
-  smoothScrollTo(target) {
-    try {
-      const navbar = Utils.$('#navbar');
-      const navbarHeight = navbar ? navbar.offsetHeight : 80;
-      const targetPosition = target.offsetTop - navbarHeight - 20;
-
-      window.scrollTo({
-        top: targetPosition,
-        behavior: 'smooth'
+    // Mobile navigation
+    Utils.$$('.mobile-nav-link').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = link.getAttribute('href');
+        const target = Utils.$(targetId);
+        if (target) {
+          Utils.scrollToElement(target);
+          this.updateActiveNavigation(targetId.substring(1));
+          this.closeMobileMenu();
+        }
       });
-    } catch (error) {
-      console.warn('NavigationManager: Smooth scroll to error:', error);
-    }
+    });
   },
 
   bindScrollEvents() {
     const throttledScroll = Utils.throttle(() => {
-      this.updateActiveNavigation();
+      this.updateActiveNavigationOnScroll();
       this.updateBackToTop();
       AnimationManager.parallaxEffect();
     }, 16);
 
-    window.addEventListener('scroll', throttledScroll, { passive: true });
+    window.addEventListener('scroll', throttledScroll, {
+      passive: true
+    });
   },
 
-  updateActiveNavigation() {
-    try {
-      const sections = Utils.$$("section[id]");
-      const navItems = Utils.$$(".navbar .navbar-tabs .navbar-tabs-ul li");
-      const mobileNavItems = Utils.$$(".mobiletogglemenu .mobile-navbar-tabs-ul li");
+  updateActiveNavigationOnScroll() {
+    const sections = Utils.$$('section[id]');
+    const scrollPosition = window.pageYOffset + 150;
 
-      let activeId = "";
-      const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+    let activeId = 'home';
 
-      sections.forEach(section => {
-        const sectionTop = section.offsetTop - 150;
-        const sectionHeight = section.offsetHeight;
+    sections.forEach(section => {
+      const sectionTop = section.offsetTop;
+      const sectionHeight = section.offsetHeight;
 
-        if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
-          activeId = section.getAttribute("id");
+      if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+        activeId = section.getAttribute('id');
+      }
+    });
+
+    if (activeId !== AppState.activeSection) {
+      this.updateActiveNavigation(activeId);
+    }
+  },
+
+  updateActiveNavigation(activeId) {
+    AppState.activeSection = activeId;
+
+    // Update desktop navigation
+    Utils.$$('.nav-link').forEach(link => {
+      const isActive = link.getAttribute('data-section') === activeId;
+      link.classList.toggle('active', isActive);
+    });
+
+    // Update mobile navigation
+    Utils.$$('.mobile-nav-link').forEach(link => {
+      const isActive = link.getAttribute('data-section') === activeId;
+      link.classList.toggle('active', isActive);
+    });
+  },
+
+  bindMobileMenu() {
+    const mobileToggle = Utils.$('.mobile-menu-toggle');
+    const mobileOverlay = Utils.$('.mobile-menu-overlay');
+
+    if (mobileToggle && mobileOverlay) {
+      mobileToggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.toggleMobileMenu();
+      });
+
+      // Close menu when clicking overlay
+      mobileOverlay.addEventListener('click', (e) => {
+        if (e.target === mobileOverlay) {
+          this.closeMobileMenu();
         }
       });
 
-      if (activeId && activeId !== AppState.activeSection) {
-        AppState.activeSection = activeId;
-
-        // Update desktop navigation
-        navItems.forEach(item => {
-          const isActive = item.classList.contains(activeId);
-          item.classList.toggle("activeThistab", isActive);
-        });
-
-        // Update mobile navigation
-        mobileNavItems.forEach(item => {
-          const isActive = item.classList.contains(activeId);
-          item.classList.toggle("activeThismobiletab", isActive);
-        });
-      }
-    } catch (error) {
-      console.warn('NavigationManager: Update active navigation error:', error);
-    }
-  },
-
-  bindHamburgerMenu() {
-    try {
-      const hamburgerBtn = Utils.$('#hamburger-button');
-      const hamburgerContainer = Utils.$('#hamburger');
-
-      if (hamburgerBtn) {
-        // Clear existing listeners
-        const newHamburgerBtn = hamburgerBtn.cloneNode(true);
-        hamburgerBtn.parentNode.replaceChild(newHamburgerBtn, hamburgerBtn);
-
-        // Unified toggle handler
-        const handleToggle = (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          this.toggleMobileMenu();
-        };
-
-        // Add event listeners
-        ['click', 'touchend'].forEach(eventType => {
-          newHamburgerBtn.addEventListener(eventType, handleToggle, {
-            passive: false,
-            capture: true
-          });
-        });
-
-        // Prevent touchstart
-        newHamburgerBtn.addEventListener('touchstart', (e) => {
-          e.preventDefault();
-        }, { passive: false });
-      }
-
-      // Make globally available
-      window.hamburgerMenu = () => this.toggleMobileMenu();
-    } catch (error) {
-      console.warn('NavigationManager: Hamburger menu binding error:', error);
-    }
-  },
-
-  bindMobileMenuLinks() {
-    try {
-      const mobileLinks = Utils.$$('.mobile-navbar-tabs-ul li a');
-      const mobileListItems = Utils.$$('.mobile-navbar-tabs-ul li');
-
-      mobileLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-          setTimeout(() => {
-            this.closeMobileMenu();
-          }, 300);
-        });
+      // Close menu on escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && AppState.isMobileMenuOpen) {
+          this.closeMobileMenu();
+        }
       });
 
-      mobileListItems.forEach(item => {
-        item.addEventListener('click', (e) => {
-          const link = item.querySelector('a');
-          if (link && e.target !== link) {
-            link.click();
+      // Handle mobile nav links
+      Utils.$$('.mobile-nav-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const targetId = link.getAttribute('href');
+          const target = Utils.$(targetId);
+          if (target) {
+            Utils.scrollToElement(target);
+            this.updateActiveNavigation(targetId.substring(1));
+            this.closeMobileMenu();
           }
         });
       });
 
-      // Global function
-      window.hidemenubyli = () => this.closeMobileMenu();
-    } catch (error) {
-      console.warn('NavigationManager: Mobile menu links binding error:', error);
+      // Prevent body scroll when menu is open
+      document.addEventListener('touchmove', (e) => {
+        if (AppState.isMobileMenuOpen) {
+          e.preventDefault();
+        }
+      }, {
+        passive: false
+      });
     }
   },
 
   toggleMobileMenu() {
-    try {
-      const body = document.body;
-      const menu = Utils.$('#mobiletogglemenu');
+    AppState.isMobileMenuOpen = !AppState.isMobileMenuOpen;
 
-      if (!menu) return;
+    const mobileToggle = Utils.$('.mobile-menu-toggle');
+    const mobileOverlay = Utils.$('.mobile-menu-overlay');
+    const body = document.body;
 
-      AppState.isMobileMenuOpen = !AppState.isMobileMenuOpen;
+    if (mobileToggle) {
+      mobileToggle.classList.toggle('active', AppState.isMobileMenuOpen);
+      mobileToggle.setAttribute('aria-expanded', AppState.isMobileMenuOpen);
+    }
 
-      if (AppState.isMobileMenuOpen) {
-        body.classList.add("stopscrolling");
-        menu.classList.add("show-toggle-menu");
-      } else {
-        body.classList.remove("stopscrolling");
-        menu.classList.remove("show-toggle-menu");
-      }
+    if (mobileOverlay) {
+      mobileOverlay.classList.toggle('active', AppState.isMobileMenuOpen);
+    }
 
-      // Animate hamburger bars
-      const bars = [
-        { id: 'burger-bar1', class: 'hamburger-animation1' },
-        { id: 'burger-bar2', class: 'hamburger-animation2' },
-        { id: 'burger-bar3', class: 'hamburger-animation3' }
-      ];
+    // Prevent body scroll when menu is open
+    if (AppState.isMobileMenuOpen) {
+      body.style.overflow = 'hidden';
+      body.style.position = 'fixed';
+      body.style.top = `-${window.scrollY}px`;
+      body.style.width = '100%';
+    } else {
+      const scrollY = body.style.top;
+      body.style.overflow = '';
+      body.style.position = '';
+      body.style.top = '';
+      body.style.width = '';
+      window.scrollTo(0, parseInt(scrollY || '0') * -1);
+    }
 
-      bars.forEach(bar => {
-        const element = Utils.$(`#${bar.id}`);
-        if (element) {
-          element.classList.toggle(bar.class, AppState.isMobileMenuOpen);
-        }
-      });
-    } catch (error) {
-      console.error('NavigationManager: Mobile menu toggle error:', error);
+    // Trap focus in mobile menu
+    if (AppState.isMobileMenuOpen) {
+      this.trapFocus(mobileOverlay);
     }
   },
 
   closeMobileMenu() {
     if (!AppState.isMobileMenuOpen) return;
 
-    try {
-      const body = document.body;
-      const menu = Utils.$('#mobiletogglemenu');
+    AppState.isMobileMenuOpen = false;
 
-      AppState.isMobileMenuOpen = false;
-      body.classList.remove("stopscrolling");
+    const mobileToggle = Utils.$('.mobile-menu-toggle');
+    const mobileOverlay = Utils.$('.mobile-menu-overlay');
+    const body = document.body;
 
-      if (menu) {
-        menu.classList.remove("show-toggle-menu");
-      }
-
-      // Reset hamburger bars
-      const bars = [
-        { id: 'burger-bar1', class: 'hamburger-animation1' },
-        { id: 'burger-bar2', class: 'hamburger-animation2' },
-        { id: 'burger-bar3', class: 'hamburger-animation3' }
-      ];
-
-      bars.forEach(bar => {
-        const element = Utils.$(`#${bar.id}`);
-        if (element) {
-          element.classList.remove(bar.class);
-        }
-      });
-    } catch (error) {
-      console.warn('NavigationManager: Close mobile menu error:', error);
+    if (mobileToggle) {
+      mobileToggle.classList.remove('active');
+      mobileToggle.setAttribute('aria-expanded', 'false');
     }
+
+    if (mobileOverlay) {
+      mobileOverlay.classList.remove('active');
+    }
+
+    // Restore body scroll
+    const scrollY = body.style.top;
+    body.style.overflow = '';
+    body.style.position = '';
+    body.style.top = '';
+    body.style.width = '';
+    window.scrollTo(0, parseInt(scrollY || '0') * -1);
+  },
+
+  trapFocus(container) {
+    const focusableElements = container.querySelectorAll(
+      'a[href], button, textarea, input[type="text"], input[type="radio"], input[type="checkbox"], select'
+    );
+    const firstFocusableElement = focusableElements[0];
+    const lastFocusableElement = focusableElements[focusableElements.length - 1];
+
+    container.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey) {
+          if (document.activeElement === firstFocusableElement) {
+            lastFocusableElement.focus();
+            e.preventDefault();
+          }
+        } else {
+          if (document.activeElement === lastFocusableElement) {
+            firstFocusableElement.focus();
+            e.preventDefault();
+          }
+        }
+      }
+    });
+
+    firstFocusableElement?.focus();
   },
 
   bindBackToTop() {
-    try {
-      const backToTopBtn = Utils.$('#backtotopbutton');
-      if (backToTopBtn) {
-        backToTopBtn.addEventListener('click', () => {
-          window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-          });
+    const backToTop = Utils.$('.back-to-top');
+    if (backToTop) {
+      backToTop.addEventListener('click', () => {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
         });
-      }
-    } catch (error) {
-      console.warn('NavigationManager: Back to top binding error:', error);
+      });
     }
   },
 
   updateBackToTop() {
-    try {
-      const backToTopBtn = Utils.$('#backtotopbutton');
-      if (!backToTopBtn) return;
+    const backToTop = Utils.$('.back-to-top');
+    if (!backToTop) return;
 
-      const scrollPosition = document.body.scrollTop || document.documentElement.scrollTop;
-      const shouldShow = scrollPosition > 400;
+    const scrollPosition = window.pageYOffset;
+    const shouldShow = scrollPosition > 400;
 
-      if (shouldShow && backToTopBtn.style.display !== 'block') {
-        backToTopBtn.style.display = "block";
-        backToTopBtn.style.opacity = "1";
-      } else if (!shouldShow && backToTopBtn.style.opacity !== "0") {
-        backToTopBtn.style.opacity = "0";
-        setTimeout(() => {
-          if (backToTopBtn.style.opacity === "0") {
-            backToTopBtn.style.display = "none";
-          }
-        }, 300);
-      }
-    } catch (error) {
-      console.warn('NavigationManager: Update back to top error:', error);
+    if (shouldShow) {
+      backToTop.classList.add('visible');
+    } else {
+      backToTop.classList.remove('visible');
     }
   },
 
-  adjustLandingPadding() {
-    try {
-      const navbar = Utils.$('#navbar');
-      const landing = Utils.$('.landing-page-container');
-      if (navbar && landing) {
-        const navbarHeight = navbar.offsetHeight;
-        landing.style.paddingTop = `${navbarHeight + 20}px`;
-      }
-    } catch (error) {
-      console.warn('NavigationManager: Adjust landing padding error:', error);
+  adjustHeroPadding() {
+    const navbar = Utils.$('.navbar');
+    const hero = Utils.$('.hero-section');
+
+    if (navbar && hero) {
+      const navbarHeight = navbar.offsetHeight;
+      hero.style.paddingTop = `${navbarHeight + 20}px`;
     }
   }
 };
 
-// Certificate Modal Management - Enhanced
+// Modal Management
 const ModalManager = {
   init() {
     this.bindCertificateModal();
   },
 
   bindCertificateModal() {
-    try {
-      const modal = Utils.$('#certificateModal');
-      const modalImg = Utils.$('#modalImage');
-      const captionText = Utils.$('#caption');
-      const certLinks = Utils.$$('.view-certificate');
-      const closeBtn = Utils.$('.close');
+    const modal = Utils.$('#certificateModal');
+    const modalImg = Utils.$('#modalImage');
+    const modalCaption = Utils.$('#modalCaption');
+    const closeBtn = Utils.$('.modal-close');
+    const certButtons = Utils.$$('.cert-view-btn');
 
-      if (!modal || !modalImg || !captionText) return;
+    if (!modal || !modalImg || !modalCaption) return;
 
-      certLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-          e.preventDefault();
-          this.openModal(modal, modalImg, captionText, link);
-        });
+    certButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.openModal(modal, modalImg, modalCaption, button);
       });
+    });
 
-      if (closeBtn) {
-        closeBtn.addEventListener('click', () => {
-          this.closeModal(modal);
-        });
-      }
-
-      // Close on background click
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-          this.closeModal(modal);
-        }
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        this.closeModal(modal);
       });
-
-      // Close on escape key
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal.style.display === 'block') {
-          this.closeModal(modal);
-        }
-      });
-    } catch (error) {
-      console.warn('ModalManager: Certificate modal binding error:', error);
     }
+
+    // Close on background click
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        this.closeModal(modal);
+      }
+    });
+
+    // Close on escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.style.display === 'block') {
+        this.closeModal(modal);
+      }
+    });
   },
 
-  openModal(modal, modalImg, captionText, link) {
-    try {
-      const certificatePath = link.getAttribute('data-certificate');
-      const title = link.closest('.certification-card').querySelector('.cert-title');
+  openModal(modal, modalImg, modalCaption, button) {
+    const certificatePath = button.getAttribute('data-certificate');
+    const card = button.closest('.certification-card');
+    const title = card ? card.querySelector('.cert-title') : null;
 
-      modal.style.display = 'block';
-      modalImg.src = certificatePath;
-      captionText.textContent = title ? title.textContent : 'Certificate';
+    modal.style.display = 'block';
+    modalImg.src = certificatePath;
+    modalCaption.textContent = title ? title.textContent : 'Certificate';
 
-      document.body.style.overflow = 'hidden';
-    } catch (error) {
-      console.warn('ModalManager: Open modal error:', error);
-    }
+    document.body.style.overflow = 'hidden';
   },
 
   closeModal(modal) {
-    try {
-      modal.style.display = 'none';
-      document.body.style.overflow = '';
-    } catch (error) {
-      console.warn('ModalManager: Close modal error:', error);
-    }
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
   }
 };
 
-// Custom Cursor Management - Enhanced with better performance
+// Custom Cursor Management
 const CursorManager = {
   init() {
-    if (Utils.isMobile() || !Utils.hasSupport('transform') || !Utils.hasSupport('requestAnimationFrame')) {
+    if (Utils.isMobile() || !Utils.supportsFeature('transform')) {
       return;
     }
     this.initCustomCursor();
   },
 
   initCustomCursor() {
-    try {
-      const cursorInner = Utils.$('#cursor-inner');
-      const cursorOuter = Utils.$('#cursor-outer');
-      const interactiveElements = Utils.$$('a, label, button, .tech-stack-box, .project-box, .certification-card');
+    const cursorInner = Utils.$('.cursor-inner');
+    const cursorOuter = Utils.$('.cursor-outer');
+    const interactiveElements = Utils.$$('a, button, .tech-item, .project-card, .certification-card');
 
-      if (!cursorInner || !cursorOuter) return;
+    if (!cursorInner || !cursorOuter) return;
 
-      let mouseX = 0, mouseY = 0;
-      let outerX = 0, outerY = 0;
+    let mouseX = 0,
+      mouseY = 0;
+    let outerX = 0,
+      outerY = 0;
 
-      // Mouse move handler with performance optimization
-      document.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
+    // Mouse move handler
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
 
-        cursorInner.style.left = `${mouseX}px`;
-        cursorInner.style.top = `${mouseY}px`;
-      });
+      cursorInner.style.left = `${mouseX}px`;
+      cursorInner.style.top = `${mouseY}px`;
+    });
 
-      // Smooth animation for outer cursor
-      const animateOuterCursor = () => {
-        const dx = mouseX - outerX;
-        const dy = mouseY - outerY;
+    // Smooth animation for outer cursor
+    const animateOuterCursor = () => {
+      const dx = mouseX - outerX;
+      const dy = mouseY - outerY;
 
-        outerX += dx * 0.1;
-        outerY += dy * 0.1;
+      outerX += dx * 0.1;
+      outerY += dy * 0.1;
 
-        cursorOuter.style.left = `${outerX}px`;
-        cursorOuter.style.top = `${outerY}px`;
+      cursorOuter.style.left = `${outerX}px`;
+      cursorOuter.style.top = `${outerY}px`;
 
-        requestAnimationFrame(animateOuterCursor);
-      };
+      AppState.animationFrameId = requestAnimationFrame(animateOuterCursor);
+    };
 
-      requestAnimationFrame(animateOuterCursor);
-
-      // Hover effects
-      interactiveElements.forEach(element => {
-        element.addEventListener('mouseenter', () => {
-          cursorInner.classList.add('hover');
-          cursorOuter.classList.add('hover');
-        });
-
-        element.addEventListener('mouseleave', () => {
-          cursorInner.classList.remove('hover');
-          cursorOuter.classList.remove('hover');
-        });
-      });
-    } catch (error) {
-      console.warn('CursorManager: Custom cursor error:', error);
+    if (Utils.supportsFeature('requestAnimationFrame')) {
+      animateOuterCursor();
     }
+
+    // Hover effects
+    interactiveElements.forEach(element => {
+      element.addEventListener('mouseenter', () => {
+        cursorInner.classList.add('hover');
+        cursorOuter.classList.add('hover');
+      });
+
+      element.addEventListener('mouseleave', () => {
+        cursorInner.classList.remove('hover');
+        cursorOuter.classList.remove('hover');
+      });
+    });
   }
 };
 
-// Performance and Error Management - Enhanced
+// Performance Manager
 const PerformanceManager = {
   init() {
     this.bindResizeEvents();
     this.bindVisibilityEvents();
-    this.bindErrorHandling();
-    this.preventImageRightClick();
-    this.optimizePerformance();
+    this.preventRightClick();
+    this.optimizeImages();
   },
 
   bindResizeEvents() {
     const debouncedResize = Utils.debounce(() => {
-      NavigationManager.updateActiveNavigation();
-      NavigationManager.adjustLandingPadding();
+      NavigationManager.adjustHeroPadding();
+      NavigationManager.updateActiveNavigationOnScroll();
     }, 250);
 
     window.addEventListener('resize', debouncedResize);
@@ -927,314 +789,187 @@ const PerformanceManager = {
 
   bindVisibilityEvents() {
     document.addEventListener('visibilitychange', () => {
-      if (document.hidden && AppState.animationId) {
-        cancelAnimationFrame(AppState.animationId);
-        AppState.animationId = null;
+      if (document.hidden && AppState.animationFrameId) {
+        cancelAnimationFrame(AppState.animationFrameId);
+        AppState.animationFrameId = null;
       }
     });
   },
 
-  bindErrorHandling() {
-    window.addEventListener('error', (e) => {
-      console.error('Global error:', e.error);
-      // Don't let errors break the app
-      e.preventDefault();
-    });
-
-    window.addEventListener('unhandledrejection', (e) => {
-      console.error('Unhandled promise rejection:', e.reason);
-      e.preventDefault();
-    });
-  },
-
-  preventImageRightClick() {
+  preventRightClick() {
     document.addEventListener('contextmenu', (e) => {
       if (e.target.nodeName === 'IMG') {
         e.preventDefault();
-        this.showNotification('Image download is disabled');
+        Utils.showNotification('Image download is disabled', 'warning');
       }
     });
   },
 
-  optimizePerformance() {
-    // Preload critical images
-    const criticalImages = [
-      './src/png/nav-avatar.png',
-      './src/png/bala_pic.jpg'
-    ];
+  optimizeImages() {
+    // Lazy load images if IntersectionObserver is supported
+    if (Utils.supportsFeature('intersectionObserver')) {
+      const images = Utils.$$('img[data-src]');
 
-    criticalImages.forEach(src => {
-      const img = new Image();
-      img.src = src;
-    });
-
-    // Optimize scroll performance
-    let ticking = false;
-    const optimizedScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          // Scroll optimizations
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-
-    window.addEventListener('scroll', optimizedScroll, { passive: true });
-  },
-
-  showNotification(message) {
-    try {
-      const notification = Utils.createElement('div', {
-        textContent: message,
-        className: 'performance-notification'
-      });
-
-      notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: var(--accent-primary);
-        color: var(--bg-primary);
-        padding: 12px 24px;
-        border-radius: 8px;
-        z-index: 10000;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.9rem;
-        font-weight: 600;
-        opacity: 0;
-        transform: translateY(-20px);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        pointer-events: none;
-        box-shadow: 0 10px 30px var(--shadow-color);
-        max-width: 300px;
-        word-wrap: break-word;
-      `;
-
-      document.body.appendChild(notification);
-
-      requestAnimationFrame(() => {
-        notification.style.opacity = '1';
-        notification.style.transform = 'translateY(0)';
-      });
-
-      setTimeout(() => {
-        notification.style.opacity = '0';
-        notification.style.transform = 'translateY(-20px)';
-        setTimeout(() => {
-          if (notification.parentNode) {
-            document.body.removeChild(notification);
+      const imageObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const img = entry.target;
+            img.src = img.dataset.src;
+            img.classList.remove('lazy');
+            imageObserver.unobserve(img);
           }
-        }, 300);
-      }, 3000);
-    } catch (error) {
-      console.warn('PerformanceManager: Show notification error:', error);
+        });
+      });
+
+      images.forEach(img => imageObserver.observe(img));
     }
   }
 };
 
-// Utility Functions (Global) - Enhanced with better error handling
-function openURL() {
+// Global Functions (for backward compatibility and direct calls)
+function openResume() {
   try {
-    const url = "src/resume/resume.pdf";
-    const newWindow = window.open(url, "_blank", "noopener,noreferrer");
+    const resumeUrl = "src/resume/resume.pdf";
+    const newWindow = window.open(resumeUrl, "_blank", "noopener,noreferrer");
 
     if (!newWindow) {
       // Fallback if popup blocked
-      window.location.href = url;
+      window.location.href = resumeUrl;
     }
 
-    // Analytics tracking (if available)
+    Utils.showNotification("Resume opened successfully!", 'success');
+
+    // Analytics tracking if available
     if (typeof gtag !== 'undefined') {
       gtag('event', 'download', {
         'event_category': 'Resume',
-        'event_label': 'PDF Download',
-        'transport_type': 'beacon'
+        'event_label': 'PDF Download'
       });
     }
 
-    // Show success notification
-    PerformanceManager.showNotification("Resume opened successfully!");
-
   } catch (error) {
-    console.error("Resume download error:", error);
-    PerformanceManager.showNotification("Resume download temporarily unavailable");
-
-    // Fallback: try direct navigation
-    try {
-      window.location.href = "src/resume/resume.pdf";
-    } catch (fallbackError) {
-      console.error("Fallback navigation failed:", fallbackError);
-    }
+    console.error("Resume open error:", error);
+    Utils.showNotification("Resume temporarily unavailable", 'error');
   }
 }
 
-// Legacy function names for backward compatibility
-function toggleVisualMode() {
-  ThemeManager.performToggle();
-}
-
-function visualmode() {
-  ThemeManager.performToggle();
-}
-
-function hamburgerMenu() {
-  NavigationManager.toggleMobileMenu();
-}
-
-function hidemenubyli() {
-  NavigationManager.closeMobileMenu();
-}
-
-function scrolltoTopfunction() {
-  try {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
-  } catch (error) {
-    // Fallback for older browsers
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
-  }
+function scrollToTop() {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
 }
 
 // Make functions globally available
-window.openURL = openURL;
-window.toggleVisualMode = toggleVisualMode;
-window.visualmode = visualmode;
-window.hamburgerMenu = hamburgerMenu;
-window.hidemenubyli = hidemenubyli;
-window.scrolltoTopfunction = scrolltoTopfunction;
+window.openResume = openResume;
+window.scrollToTop = scrollToTop;
 
-// Enhanced Application Initialization
+// Main Application Class
 class PortfolioApp {
   constructor() {
     this.initialized = false;
-    this.retryCount = 0;
-    this.maxRetries = 3;
+    this.managers = [{
+        name: 'ThemeManager',
+        instance: ThemeManager
+      },
+      {
+        name: 'PreloaderManager',
+        instance: PreloaderManager
+      },
+      {
+        name: 'AnimationManager',
+        instance: AnimationManager
+      },
+      {
+        name: 'NavigationManager',
+        instance: NavigationManager
+      },
+      {
+        name: 'ModalManager',
+        instance: ModalManager
+      },
+      {
+        name: 'CursorManager',
+        instance: CursorManager
+      },
+      {
+        name: 'PerformanceManager',
+        instance: PerformanceManager
+      }
+    ];
   }
 
   init() {
-    if (this.initialized) {
-      console.log('PortfolioApp: Already initialized');
-      return;
-    }
+    if (this.initialized) return;
 
     try {
-      console.log('PortfolioApp: Starting initialization...');
+      console.log('🚀 Portfolio App: Initializing...');
 
-      // Set loading state
-      document.body.classList.add('loading');
+      // Initialize all managers
+      this.managers.forEach(({
+        name,
+        instance
+      }) => {
+        try {
+          instance.init();
+          console.log(`✅ ${name}: Initialized`);
+        } catch (error) {
+          console.error(`❌ ${name}: Initialization failed`, error);
+        }
+      });
 
-      // Initialize all managers in correct order
-      this.initializeManagers();
-
-      // Mark as initialized
       this.initialized = true;
-      console.log('PortfolioApp: Initialization complete');
-
-      // Post-load setup
       this.setupPostLoadActions();
-
-      // Display console branding
       this.displayConsoleBranding();
 
+      console.log('🎉 Portfolio App: Initialization complete');
+
     } catch (error) {
-      console.error('PortfolioApp: Initialization error:', error);
-      this.handleInitializationError(error);
-    }
-  }
-
-  initializeManagers() {
-    const managers = [
-      { name: 'ThemeManager', manager: ThemeManager },
-      { name: 'PreloaderManager', manager: PreloaderManager },
-      { name: 'AnimationManager', manager: AnimationManager },
-      { name: 'NavigationManager', manager: NavigationManager },
-      { name: 'ModalManager', manager: ModalManager },
-      { name: 'CursorManager', manager: CursorManager },
-      { name: 'PerformanceManager', manager: PerformanceManager }
-    ];
-
-    managers.forEach(({ name, manager }) => {
-      try {
-        console.log(`PortfolioApp: Initializing ${name}...`);
-        manager.init();
-        console.log(`PortfolioApp: ${name} initialized successfully`);
-      } catch (error) {
-        console.error(`PortfolioApp: ${name} initialization failed:`, error);
-        // Continue with other managers even if one fails
-      }
-    });
-  }
-
-  setupPostLoadActions() {
-    const setupActions = () => {
-      try {
-        document.body.classList.remove('loading');
-        document.body.classList.add('loaded');
-
-        // Trigger any remaining animations
-        const event = new CustomEvent('appLoaded', {
-          detail: { timestamp: Date.now() }
-        });
-        document.dispatchEvent(event);
-
-      } catch (error) {
-        console.warn('PortfolioApp: Post-load setup error:', error);
-      }
-    };
-
-    if (document.readyState === 'complete') {
-      setTimeout(setupActions, 500);
-    } else {
-      window.addEventListener('load', () => {
-        setTimeout(setupActions, 500);
-      });
-    }
-  }
-
-  handleInitializationError(error) {
-    console.error('PortfolioApp: Critical initialization error:', error);
-
-    if (this.retryCount < this.maxRetries) {
-      this.retryCount++;
-      console.log(`PortfolioApp: Retrying initialization (${this.retryCount}/${this.maxRetries})...`);
-
-      setTimeout(() => {
-        this.initialized = false;
-        this.init();
-      }, 1000 * this.retryCount); // Exponential backoff
-    } else {
-      console.error('PortfolioApp: Maximum retry attempts reached. Running in degraded mode.');
+      console.error('💥 Portfolio App: Critical initialization error', error);
       this.initializeFallbackMode();
     }
   }
 
-  initializeFallbackMode() {
-    try {
-      console.log('PortfolioApp: Initializing fallback mode...');
+  setupPostLoadActions() {
+    const finishLoading = () => {
+      document.body.classList.add('loaded');
 
-      // Basic theme functionality
-      const toggleBtn = Utils.$('.light-mode-toggle');
-      if (toggleBtn) {
-        toggleBtn.addEventListener('click', (e) => {
-          e.preventDefault();
-          document.body.classList.toggle('light-mode');
+      // Dispatch app loaded event
+      document.dispatchEvent(new CustomEvent('appLoaded', {
+        detail: {
+          timestamp: Date.now()
+        }
+      }));
+    };
+
+    if (document.readyState === 'complete') {
+      setTimeout(finishLoading, 500);
+    } else {
+      window.addEventListener('load', () => setTimeout(finishLoading, 500));
+    }
+  }
+
+  initializeFallbackMode() {
+    console.log('🔧 Portfolio App: Initializing fallback mode...');
+
+    try {
+      // Basic theme toggle
+      const themeToggle = Utils.$('.theme-toggle');
+      if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+          document.body.classList.toggle('light-theme');
         });
       }
 
-      // Basic hamburger menu
-      const hamburgerBtn = Utils.$('#hamburger-button');
-      if (hamburgerBtn) {
-        hamburgerBtn.addEventListener('click', (e) => {
-          e.preventDefault();
-          const menu = Utils.$('#mobiletogglemenu');
-          if (menu) {
-            menu.classList.toggle('show-toggle-menu');
-            document.body.classList.toggle('stopscrolling');
-          }
+      // Basic mobile menu
+      const mobileToggle = Utils.$('.mobile-menu-toggle');
+      const mobileOverlay = Utils.$('.mobile-menu-overlay');
+
+      if (mobileToggle && mobileOverlay) {
+        mobileToggle.addEventListener('click', () => {
+          mobileToggle.classList.toggle('active');
+          mobileOverlay.classList.toggle('active');
+          document.body.style.overflow = mobileToggle.classList.contains('active') ? 'hidden' : '';
         });
       }
 
@@ -1242,128 +977,63 @@ class PortfolioApp {
       const preloader = Utils.$('#preloader');
       if (preloader) {
         preloader.style.display = 'none';
+        AppState.isLoading = false;
       }
 
-      document.body.classList.remove('loading');
-      console.log('PortfolioApp: Fallback mode initialized');
+      console.log('✅ Fallback mode initialized');
 
-    } catch (fallbackError) {
-      console.error('PortfolioApp: Even fallback mode failed:', fallbackError);
+    } catch (error) {
+      console.error('💥 Even fallback mode failed:', error);
     }
   }
 
   displayConsoleBranding() {
     try {
       console.log(
-        "%c🚀 Portfolio by Balaganesh S B - Optimized Edition",
+        "%c🚀 Portfolio by Balaganesh S B - Modern Edition",
         `background: linear-gradient(90deg, #A5B68D, #C1CFA1);
          color: white;
-         font-weight: 900;
-         font-size: 1.2rem;
-         padding: 20px;
-         border-radius: 10px;
-         text-shadow: 2px 2px 4px rgba(0,0,0,0.3);`
+         font-weight: 900;         padding: 5px 15px;
+         border-radius: 4px;
+         font-size: 14px;`
       );
-
       console.log(
-        "%c💼 Oracle Certified Java Developer | Full Stack Developer",
-        `background: linear-gradient(90deg, #000B58, #003161);
-         color: white;
-         font-weight: 600;
-         font-size: 1rem;
-         padding: 10px 20px;
-         border-radius: 5px;`
+        "%c🔧 Built with modern JavaScript, CSS3, and HTML5",
+        "color: #A5B68D; font-weight: 600;"
       );
-
       console.log(
-        "%c🔧 Enhanced for Cross-Browser Compatibility",
-        `background: linear-gradient(90deg, #16213e, #1a1a2e);
-         color: #A5B68D;
-         font-weight: 600;
-         font-size: 0.9rem;
-         padding: 8px 16px;
-         border-radius: 5px;`
+        "%c📫 Contact: bxlz143@gmail.com",
+        "color: #C1CFA1; font-weight: 600;"
       );
-    } catch (error) {
-      // Silent fail for console branding
+      console.log(
+        "%c⚠️ Please don't copy/paste scripts you don't understand!",
+        "color: #FCDC94; font-weight: 600;"
+      );
+    } catch (e) {
+      console.log("Portfolio by Balaganesh S B - Modern Edition");
     }
   }
 }
 
-// Safe Initialization with Multiple Entry Points
-const app = new PortfolioApp();
-
-// Primary initialization
-const initializeApp = () => {
+// Initialize the application when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  const app = new PortfolioApp();
   app.init();
-};
-
-// Multiple initialization triggers for maximum reliability
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initializeApp);
-} else {
-  // DOM is already ready
-  setTimeout(initializeApp, 100);
-}
-
-// Backup initialization
-window.addEventListener('load', () => {
-  if (!app.initialized) {
-    console.log('PortfolioApp: Backup initialization triggered');
-    initializeApp();
-  }
 });
 
-// Final fallback
-setTimeout(() => {
-  if (!app.initialized) {
-    console.log('PortfolioApp: Emergency initialization triggered');
-    initializeApp();
-  }
-}, 3000);
+// Fallback initialization if DOMContentLoaded doesn't fire
+if (document.readyState !== 'loading') {
+  const app = new PortfolioApp();
+  app.init();
+}
 
-// Service Worker Registration (Progressive Web App support)
-if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
+// Service Worker Registration (Progressive Web App)
+if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then((registration) => {
-        console.log('ServiceWorker: Registered successfully');
-        return registration;
-      })
-      .catch((error) => {
-        console.log('ServiceWorker: Registration failed', error);
-      });
+    navigator.serviceWorker.register('/sw.js').then(registration => {
+      console.log('ServiceWorker registration successful with scope: ', registration.scope);
+    }).catch(err => {
+      console.log('ServiceWorker registration failed: ', err);
+    });
   });
 }
-
-// Enhanced Error Recovery
-window.addEventListener('error', (event) => {
-  console.error('Global Error Handler:', event.error);
-
-  // Try to recover from critical errors
-  if (event.error && event.error.message && event.error.message.includes('theme')) {
-    console.log('Attempting to recover from theme-related error...');
-    try {
-      document.body.classList.remove('light-mode');
-      AppState.theme = 'dark';
-    } catch (recoveryError) {
-      console.error('Recovery failed:', recoveryError);
-    }
-  }
-});
-
-// Prevent common mobile issues
-document.addEventListener('touchstart', function() {}, { passive: true });
-document.addEventListener('touchmove', function() {}, { passive: true });
-
-// Export for potential module usage
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    PortfolioApp,
-    ThemeManager,
-    NavigationManager,
-    Utils
-  };
-}
-
-console.log('📱 Portfolio JavaScript: Fully loaded and optimized for all browsers including Brave mobile!');
