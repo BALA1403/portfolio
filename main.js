@@ -725,7 +725,8 @@ const NavigationManager = {
 
   updateBackToTop() {
     const backToTop = Utils.$('.back-to-top');
-    if (!backToTop) return;
+    const coffeeButton = Utils.$('#coffee-button');
+    if (!backToTop || !coffeeButton) return;
 
     const scrollPosition = window.pageYOffset;
     const shouldShow = scrollPosition > 400;
@@ -733,9 +734,11 @@ const NavigationManager = {
     if (shouldShow) {
       backToTop.classList.add('visible');
       backToTop.setAttribute('aria-hidden', 'false');
+      coffeeButton.classList.add('visible');
     } else {
       backToTop.classList.remove('visible');
       backToTop.setAttribute('aria-hidden', 'true');
+      coffeeButton.classList.remove('visible');
     }
   },
 
@@ -1207,7 +1210,6 @@ class PortfolioApp {
           console.error(`❌ ${name}: Initialization failed`, error);
         }
       });
-
       this.initialized = true;
       this.setupPostLoadActions();
       this.displayConsoleBranding();
@@ -1218,6 +1220,8 @@ class PortfolioApp {
       console.error('💥 Portfolio App: Critical initialization error', error);
       this.initializeFallbackMode();
     }
+
+
   }
 
   setupPostLoadActions() {
