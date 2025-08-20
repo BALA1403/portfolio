@@ -1636,6 +1636,14 @@ footer {
     text-align: center;
   }
 
+  .about-content {
+    gap: 2.5rem;
+  }
+
+  .about-image img {
+    max-width: 320px;
+  }
+
   /* Mobile Theme Section */
   .mobile-theme-section {
     margin-top: 2rem;
