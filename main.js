@@ -1210,6 +1210,7 @@ class PortfolioApp {
           console.error(`❌ ${name}: Initialization failed`, error);
         }
       });
+  
       this.initialized = true;
       this.setupPostLoadActions();
       this.displayConsoleBranding();
