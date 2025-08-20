@@ -26,7 +26,9 @@ Welcome to my professional portfolio, where I showcase my journey as a passionat
 
 ### Mobile View (Portrait)
 
+
 ![Portfolio Mobile ](src/screenshots/screenshot_mobile01.jpg)
+
 
 ![Portfolio Mobile ](src/screenshots/screenshot_mobile02.jpg)
 
