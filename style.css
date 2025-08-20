@@ -45,7 +45,7 @@ html {
   --accent-tertiary: #d4a853;
   --hover-color: #c19a4b;
   --border-color: #e0e0e0;
-  --shadow-color: rgba(0, 0, 0, 0.1);
+  --shadow-color: rgba(0, 0, 0, 0.8);;
   --navbar-bg: rgba(255, 255, 255, 0.95);
   --card-bg: rgba(255, 255, 255, 0.9);
   --glass-bg: rgba(0, 0, 0, 0.05);
@@ -1865,7 +1865,7 @@ a:focus,
   }
 
   .light-theme {
-    --shadow-color: rgba(0, 0, 0, 0.3);
+    --shadow-color: rgba(0, 0, 0, 0.8);
     --border-color: var(--text-primary);
   }
 }
