@@ -724,23 +724,20 @@ const NavigationManager = {
   },
 
   updateBackToTop() {
-    const backToTop = Utils.$('.back-to-top');
-    const coffeeButton = Utils.$('#coffee-button');
-    if (!backToTop || !coffeeButton) return;
+  const backToTop = Utils.$('.back-to-top');
+  if (!backToTop) return;
 
-    const scrollPosition = window.pageYOffset;
-    const shouldShow = scrollPosition > 400;
+  const scrollPosition = window.pageYOffset;
+  const shouldShow = scrollPosition > 400;
 
-    if (shouldShow) {
-      backToTop.classList.add('visible');
-      backToTop.setAttribute('aria-hidden', 'false');
-      coffeeButton.classList.add('visible');
-    } else {
-      backToTop.classList.remove('visible');
-      backToTop.setAttribute('aria-hidden', 'true');
-      coffeeButton.classList.remove('visible');
-    }
-  },
+  if (shouldShow) {
+    backToTop.classList.add('visible');
+    backToTop.setAttribute('aria-hidden', 'false');
+  } else {
+    backToTop.classList.remove('visible');
+    backToTop.setAttribute('aria-hidden', 'true');
+  }
+},
 
   adjustHeroPadding() {
     const navbar = Utils.$('.navbar');
@@ -1210,7 +1207,7 @@ class PortfolioApp {
           console.error(`❌ ${name}: Initialization failed`, error);
         }
       });
-  
+
       this.initialized = true;
       this.setupPostLoadActions();
       this.displayConsoleBranding();
