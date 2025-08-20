@@ -701,17 +701,18 @@ body.light-theme .mobile-theme-toggle .moon-icon {
   letter-spacing: 1px;
   text-decoration: none;
   display: inline-block;
+  min-width: 180px;
+  text-align: center;
 }
 
 .contact-btn-div .hero-buttons {
   display: flex;
   gap: 14.5rem;
-  flex-direction: row;
 }
 
 .contact-btn-div .cta-button.coffee-cta-button {
   padding: 12px 32px;
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 
 .cta-button:hover {
@@ -733,6 +734,10 @@ body.light-theme .mobile-theme-toggle .moon-icon {
 
 .cta-button:hover .cta-background {
   left: 0;
+}
+
+.coffee-icon {
+  margin-right: 8px;
 }
 
 /* ===== ABOUT SECTION ===== */
@@ -778,12 +783,23 @@ body.light-theme .mobile-theme-toggle .moon-icon {
   fill: currentColor;
 }
 
+.about-image {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  position: relative;
+  height: 100%;
+}
+
 .about-image img {
-  width: 100%;
-  max-width: 300px;
+  width: 150%;
+  max-width: 380px;
+  height: auto;
   border-radius: 20px;
   box-shadow: 0 20px 50px var(--shadow-color);
   transition: transform 0.3s ease;
+  border: 2px solid var(--accent-primary);
+  object-fit: cover;
 }
 
 .about-image img:hover {
@@ -1511,14 +1527,14 @@ footer {
   }
 
   .contact-btn-div .hero-buttons {
-    display: flex;
-    gap: 3rem;
     flex-direction: row;
+    gap: 1.5rem;
   }
 
   .contact-btn-div .cta-button .coffee-cta-button {
-    padding:  8px 20px;
+    padding: 8px 20px;
     font-size: 0.85rem;
+    width: 100%;
   }
 
   .container {
@@ -1644,12 +1660,13 @@ footer {
   .contact-btn-div .hero-buttons {
     align-items: center;
     gap: 1rem;
-    flex-direction: column;
+    flex-direction: row;
   }
 
   .contact-btn-div .cta-button .coffee-cta-button {
-    padding:  4px 20px;
+    padding: 4px 20px;
     font-size: 0.75rem;
+    width: 100%;
   }
 
   .section-title {
