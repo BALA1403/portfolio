@@ -713,6 +713,7 @@ body.light-theme .mobile-theme-toggle .moon-icon {
 .contact-btn-div .cta-button.coffee-cta-button {
   padding: 12px 32px;
   font-size: 1rem;
+  min-width: 180px;
 }
 
 .cta-button:hover {
@@ -1529,12 +1530,19 @@ footer {
   .contact-btn-div .hero-buttons {
     flex-direction: row;
     gap: 1.5rem;
+    justify-content: center;
   }
 
-  .contact-btn-div .cta-button .coffee-cta-button {
-    padding: 8px 20px;
-    font-size: 0.85rem;
-    width: 100%;
+  .cta-button {
+    min-width: 140px;
+    padding: 12px 24px;
+    font-size: 0.9rem;
+  }
+
+  .contact-btn-div .cta-button.coffee-cta-button {
+    padding: 12px 24px;
+    font-size: 0.9rem;
+    min-width: 140px;
   }
 
   .container {
@@ -1666,15 +1674,24 @@ footer {
   }
 
   .contact-btn-div .hero-buttons {
+    flex-direction: column;
     align-items: center;
     gap: 1rem;
     flex-direction: row;
   }
 
-  .contact-btn-div .cta-button .coffee-cta-button {
-    padding: 4px 20px;
-    font-size: 0.75rem;
+  .cta-button {
     width: 100%;
+    max-width: 280px;
+    padding: 12px 24px;
+    font-size: 0.9rem;
+  }
+
+  .contact-btn-div .cta-button.coffee-cta-button {
+    width: 100%;
+    max-width: 280px;
+    padding: 12px 24px;
+    font-size: 0.9rem;
   }
 
   .section-title {
