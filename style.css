@@ -748,16 +748,16 @@ header {
 /* ===== EXPERIENCE SECTION — TIMELINE ===== */
 .experience-timeline {
   position: relative;
-  padding-left: 2rem;
+  padding-left: 2.5rem;
 }
 
-/* Vertical timeline line */
+/* Vertical timeline line — anchored to dot centre */
 .experience-timeline::before {
   content: '';
   position: absolute;
-  left: 0;
-  top: 20px;
-  bottom: 20px;
+  left: 6px;           /* half of dot width (14px / 2 - 1px border) to centre on dot */
+  top: 28px;
+  bottom: 10px;
   width: 2px;
   background: linear-gradient(to bottom, var(--accent-primary), var(--timeline-line));
   border-radius: 2px;
@@ -777,17 +777,18 @@ header {
 
 .experience-card:last-child { margin-bottom: 0; }
 
-/* Timeline dot */
+/* Timeline dot — perfectly centred on the line */
 .timeline-dot {
   position: absolute;
-  left: -2.65rem;
-  top: 2rem;
+  left: -2.05rem;       /* sits flush over the 2px line */
+  top: 1.8rem;
   width: 14px;
   height: 14px;
   background: var(--bg-primary);
   border: 3px solid var(--accent-primary);
   border-radius: 50%;
   transition: all 0.3s ease;
+  z-index: 1;
 }
 
 .current-dot {
@@ -801,10 +802,19 @@ header {
   50%       { box-shadow: 0 0 0 8px transparent; }
 }
 
+/* Hover — pointer devices */
 .experience-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 20px 50px var(--shadow-color);
   border-color: var(--accent-primary);
+}
+
+/* Touch / tap feedback — mobile */
+.experience-card:active {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 50px var(--shadow-color);
+  border-color: var(--accent-primary);
+  transition: all 0.15s ease;
 }
 
 /* Current role card has a subtle glow */
@@ -1612,15 +1622,15 @@ footer {
 
   /* Experience timeline on mobile */
   .experience-timeline {
-    padding-left: 1.5rem;
+    padding-left: 2rem;
   }
 
   .experience-timeline::before {
-    left: 0;
+    left: 6px;
   }
 
   .timeline-dot {
-    left: -2.1rem;
+    left: -1.6rem;
   }
 
   .experience-header {
