@@ -1817,10 +1817,11 @@ footer {
 }
 
 /* Touch tap feedback — mirrors hover on touch devices */
-.experience-card.touch-active {
+.experience-card.touch-active,
+.experience-card.current.touch-active {
   transform: translateY(-4px);
   box-shadow: 0 20px 50px var(--shadow-color);
-  border-color: var(--accent-primary);
+  border-color: var(--accent-primary) !important;
   transition: all 0.15s ease;
 }
 
