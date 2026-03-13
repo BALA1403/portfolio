@@ -1150,6 +1150,29 @@ function scrollToTop() {
 window.openResume = openResume;
 window.scrollToTop = scrollToTop;
 
+// Touch Interaction Manager — gives cards hover-like feedback on mobile
+const TouchManager = {
+  init() {
+    const cards = Utils.$$(
+      '.experience-card, .project-card, .certification-card, .tech-item'
+    );
+
+    cards.forEach(card => {
+      card.addEventListener('touchstart', () => {
+        card.classList.add('touch-active');
+      }, { passive: true });
+
+      card.addEventListener('touchend', () => {
+        setTimeout(() => card.classList.remove('touch-active'), 400);
+      }, { passive: true });
+
+      card.addEventListener('touchcancel', () => {
+        card.classList.remove('touch-active');
+      }, { passive: true });
+    });
+  }
+};
+
 // Main Application Class
 class PortfolioApp {
   constructor() {
@@ -1185,6 +1208,10 @@ class PortfolioApp {
       {
         name: 'FormManager',
         instance: FormManager
+      },
+      {
+        name: 'TouchManager',
+        instance: TouchManager
       }
     ];
   }

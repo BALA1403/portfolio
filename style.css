@@ -1816,6 +1816,35 @@ footer {
   body { cursor: auto !important; }
 }
 
+/* Touch tap feedback — mirrors hover on touch devices */
+.experience-card.touch-active {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 50px var(--shadow-color);
+  border-color: var(--accent-primary);
+  transition: all 0.15s ease;
+}
+
+.project-card.touch-active {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 50px var(--shadow-color);
+  border-color: var(--accent-primary);
+  transition: all 0.15s ease;
+}
+
+.certification-card.touch-active {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 50px var(--shadow-color);
+  border-color: var(--accent-primary);
+  transition: all 0.15s ease;
+}
+
+.tech-item.touch-active {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px var(--shadow-color);
+  border-color: var(--accent-primary);
+  transition: all 0.15s ease;
+}
+
 /* ===== ACCESSIBILITY ===== */
 @media (prefers-reduced-motion: reduce) {
   *,
